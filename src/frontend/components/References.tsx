@@ -87,7 +87,7 @@ export const References = ({ onBack, onViewTags }: ReferencesProps) => {
             <button className="nav-item" onClick={onViewTags}>Tags</button>
           </div>
           <div className="nav-right">
-            <span className="user-info">Welcome, {user?.name}!</span>
+            {/* username not shown on reference pages */}
             <button className="logout-btn" onClick={logout}>Logout</button>
           </div>
         </nav>
@@ -106,19 +106,19 @@ export const References = ({ onBack, onViewTags }: ReferencesProps) => {
             className={`ref-tab ${selectedCategory === 'tags' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('tags')}
           >
-            HTML Tags
+            Tags
           </button>
           <button 
             className={`ref-tab ${selectedCategory === 'attributes' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('attributes')}
           >
-            HTML Attributes
+            Attributes
           </button>
           <button 
             className={`ref-tab ${selectedCategory === 'events' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('events')}
           >
-            HTML Events
+            Events
           </button>
         </div>
 
@@ -138,9 +138,9 @@ export const References = ({ onBack, onViewTags }: ReferencesProps) => {
                 <tbody>
                   {htmlTags.map((item, index) => (
                     <tr key={index}>
-                      <td><code>{item.tag}</code></td>
-                      <td>{item.description}</td>
-                      <td><span className="category-badge">{item.category}</span></td>
+                      <td data-label="Tag"><code>{item.tag}</code></td>
+                      <td data-label="Description">{item.description}</td>
+                      <td data-label="Category"><span className="category-badge">{item.category}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -163,9 +163,9 @@ export const References = ({ onBack, onViewTags }: ReferencesProps) => {
                 <tbody>
                   {htmlAttributes.map((item, index) => (
                     <tr key={index}>
-                      <td><code>{item.attribute}</code></td>
-                      <td>{item.description}</td>
-                      <td><code className="usage-code">{item.usage}</code></td>
+                      <td data-label="Attribute"><code>{item.attribute}</code></td>
+                      <td data-label="Description">{item.description}</td>
+                      <td data-label="Usage Example"><code className="usage-code">{item.usage}</code></td>
                     </tr>
                   ))}
                 </tbody>
@@ -188,9 +188,9 @@ export const References = ({ onBack, onViewTags }: ReferencesProps) => {
                 <tbody>
                   {htmlEvents.map((item, index) => (
                     <tr key={index}>
-                      <td><code>{item.event}</code></td>
-                      <td>{item.description}</td>
-                      <td><code className="usage-code">{item.usage}</code></td>
+                      <td data-label="Event"><code>{item.event}</code></td>
+                      <td data-label="Description">{item.description}</td>
+                      <td data-label="Usage Example"><code className="usage-code">{item.usage}</code></td>
                     </tr>
                   ))}
                 </tbody>

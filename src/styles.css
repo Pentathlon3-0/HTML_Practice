@@ -886,7 +886,109 @@ body {
 .reference-page-container {
   padding: 30px;
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
+}
+
+/* make tabs scrollable if they overflow */
+.reference-tabs {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  justify-content: center;
+}
+
+/* small adjustments for mobile devices */
+@media (max-width: 768px) {
+  .reference-page-container,
+  .reference-container {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .reference-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ref-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .reference-content-area {
+    padding: 20px;
+    width: 100%;
+  }
+
+  /* make tables scroll horizontally instead of compressing columns too small */
+  .reference-table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+  /* on small screens let table cells wrap and reduce font size so page fits in one view */
+  .reference-table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+  }
+
+  .reference-table th,
+  .reference-table td {
+    white-space: normal;
+    word-break: break-word;
+    font-size: 13px;
+  }
+
+  /* convert table into stacked blocks on small screens */
+  @media (max-width: 768px) {
+    .reference-table thead {
+      display: none;
+    }
+    .reference-table,
+    .reference-table tbody,
+    .reference-table tr {
+      display: block;
+      width: 100%;
+    }
+    .reference-table tr {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .reference-table td {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border: none;
+      position: relative;
+    }
+    .reference-table td:before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #333;
+      flex: 0 0 35%;
+      white-space: nowrap;
+    }
+  }
+
+  .reference-table-container h2 {
+    font-size: 20px;
+  }
+
+@media (max-width: 480px) {
+  .reference-intro {
+    font-size: 14px;
+  }
+
+  .ref-tab {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
 }
 
 .reference-tabs {
@@ -3216,6 +3318,50 @@ body {
 .tags-list {
   display: grid;
   gap: 16px;
+  /* cards flexibly stretch between a minimum and maximum width */
+  /* larger minimum gives wider cards on desktop/tablet */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  justify-content: center;
+}
+
+/* limit how wide an individual card can grow */
+.tag-card {
+  max-width: 800px;
+  width: 100%;
+}
+
+/* mobile improvements for tag page */
+@media (max-width: 768px) {
+  .tags-page-container {
+    padding: 15px;
+  }
+  .tags-controls {
+    gap: 12px;
+  }
+  .category-filters {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .category-filters-dropdown {
+    display: none; /* hide dropdown on phones/tablets */
+  }
+  .tags-list {
+    grid-template-columns: 1fr;
+  }
+  .tag-card {
+    padding: 12px;
+    box-sizing: border-box;
+    max-width: 330px;
+    width: 100%;
+  }
+  .tag-name {
+    font-size: 14px;
+  }
+  .tag-description,
+  .tag-example code,
+  .tag-notes {
+    font-size: 13px;
+  }
 }
 
 .tag-card {
@@ -3224,6 +3370,8 @@ body {
   border-radius: 8px;
   padding: 16px;
   background: #f8f8f8;
+  /* width rules are declared earlier so they can be adjusted centrally */
+  box-sizing: border-box;
 }
 
 .dark-mode .tag-card {
@@ -3639,6 +3787,23 @@ body {
   .tags-reference-modal {
     max-width: 95vw;
     max-height: 90vh;
+    overflow: auto; /* ensure internal scrolling instead of page scroll */
+  }
+
+  /* small-screen adjustments to make content fit without a horizontal scrollbar */
+  @media (max-width: 480px) {
+    .tags-reference-modal {
+      font-size: 13px;
+      max-width: 100vw;
+      padding: 8px;
+    }
+
+    /* shrink tables and code examples inside modal */
+    .tags-reference-modal table,
+    .tags-reference-modal pre,
+    .tags-reference-modal code {
+      font-size: 0.85em;
+    }
   }
 
   .stats-grid {

@@ -1101,7 +1101,7 @@ worker.onmessage = function(event) {
           </div>
           <div className="nav-right">
             <span className="user-greeting">Hi, {user?.name}!</span>
-            <button className="logout-btn" onClick={logout}>Sign Out</button>
+            <button className="logout-btn" onClick={logout}>Logout</button>
           </div>
         </nav>
       </header>

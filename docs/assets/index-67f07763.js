@@ -22218,14 +22218,7 @@ const References = ({ onBack, onViewTags }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item active", children: "References" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item", onClick: onViewTags, children: "Tags" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "nav-right", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "user-info", children: [
-          "Welcome, ",
-          user == null ? void 0 : user.name,
-          "!"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-title", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "HTML Reference" }),
@@ -22238,7 +22231,7 @@ const References = ({ onBack, onViewTags }) => {
           {
             className: `ref-tab ${selectedCategory === "tags" ? "active" : ""}`,
             onClick: () => setSelectedCategory("tags"),
-            children: "HTML Tags"
+            children: "Tags"
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -22246,7 +22239,7 @@ const References = ({ onBack, onViewTags }) => {
           {
             className: `ref-tab ${selectedCategory === "attributes" ? "active" : ""}`,
             onClick: () => setSelectedCategory("attributes"),
-            children: "HTML Attributes"
+            children: "Attributes"
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -22254,7 +22247,7 @@ const References = ({ onBack, onViewTags }) => {
           {
             className: `ref-tab ${selectedCategory === "events" ? "active" : ""}`,
             onClick: () => setSelectedCategory("events"),
-            children: "HTML Events"
+            children: "Events"
           }
         )
       ] }),
@@ -22269,9 +22262,9 @@ const References = ({ onBack, onViewTags }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Category" })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: htmlTags.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: item.tag }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.description }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "category-badge", children: item.category }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Tag", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: item.tag }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Description", children: item.description }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Category", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "category-badge", children: item.category }) })
             ] }, index)) })
           ] })
         ] }),
@@ -22285,9 +22278,9 @@ const References = ({ onBack, onViewTags }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Usage Example" })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: htmlAttributes.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: item.attribute }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.description }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "usage-code", children: item.usage }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Attribute", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: item.attribute }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Description", children: item.description }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Usage Example", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "usage-code", children: item.usage }) })
             ] }, index)) })
           ] })
         ] }),
@@ -22301,9 +22294,9 @@ const References = ({ onBack, onViewTags }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Usage Example" })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: htmlEvents.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: item.event }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.description }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "usage-code", children: item.usage }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Event", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: item.event }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Description", children: item.description }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { "data-label": "Usage Example", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "usage-code", children: item.usage }) })
             ] }, index)) })
           ] })
         ] })
@@ -22609,14 +22602,7 @@ const TagsPage = ({ onBack, onViewReferences }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item", onClick: onViewReferences, children: "References" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item active", children: "Tags" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "nav-right", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "user-info", children: [
-          "Welcome, ",
-          user == null ? void 0 : user.name,
-          "!"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-title", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "HTML Tags Reference" }),

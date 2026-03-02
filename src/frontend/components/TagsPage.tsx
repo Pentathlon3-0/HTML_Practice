@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { HTML_TAGS_REFERENCE } from '../utils/htmlTagsReference';
 
@@ -33,24 +33,11 @@ const getRenderingExample = (tagName: string): string => {
 
 export const TagsPage = ({ onBack, onViewReferences }: TagsPageProps) => {
   const { user, logout } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedTag, setExpandedTag] = useState<string | null>(null);
 
-  const categories = useMemo(
-    () => [...new Set(HTML_TAGS_REFERENCE.map(tag => tag.category))],
-    []
-  );
 
-  const filteredTags = useMemo(() => {
-    return HTML_TAGS_REFERENCE.filter(tag => {
-      const matchesSearch = searchTerm === '' || 
-        tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tag.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === null || tag.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [searchTerm, selectedCategory]);
+  // show all tags (no filtering)
+  const filteredTags = HTML_TAGS_REFERENCE;
 
   return (
     <div className="study-container">
@@ -65,7 +52,7 @@ export const TagsPage = ({ onBack, onViewReferences }: TagsPageProps) => {
             <button className="nav-item active">Tags</button>
           </div>
           <div className="nav-right">
-            <span className="user-info">Welcome, {user?.name}!</span>
+            {/* username hidden on tags page */}
             <button className="logout-btn" onClick={logout}>Logout</button>
           </div>
         </nav>
@@ -79,36 +66,11 @@ export const TagsPage = ({ onBack, onViewReferences }: TagsPageProps) => {
       </div>
 
       <div className="tags-page-container">
-        <div className="tags-controls">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search tags... (e.g., 'div', 'link', 'form')"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <div className="category-filters">
-            <button
-              className={`category-btn ${selectedCategory === null ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(null)}
-            >
-              All Tags
-            </button>
-            {categories.map(category => (
-              <button
-                key={category}
-                className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* no controls: all tags shown regardless of category */}
 
         {filteredTags.length === 0 ? (
           <div className="no-results">
-            <p>No tags found matching "{searchTerm}"</p>
+            <p>No tags found.</p>
           </div>
         ) : (
           <div className="tags-list">
