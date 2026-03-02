@@ -883,65 +883,10 @@ body {
   background: transparent;
 }
 
-/* dropdown filter style */
-.category-filters-dropdown {
-  margin-top: 12px;
-}
-
-/* suggestions list for reference search input */
-.search-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.suggestion-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-top: none;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 2000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.suggestion-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #333;
-  white-space: nowrap;
-}
-
-.suggestion-item:hover,
-.suggestion-item.active {
-  background: #04AA6D;
-  color: white;
-}
-
-.category-select {
-  padding: 10px 14px;
-  font-size: 14px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  background: white;
-  color: #333;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.category-select:focus {
-  outline: none;
-  border-color: #04AA6D;
-  box-shadow: 0 0 0 3px rgba(4, 170, 109, 0.1);
-}
-
 .reference-page-container {
   padding: 30px;
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -949,6 +894,8 @@ body {
 .reference-tabs {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  justify-content: center;
 }
 
 /* small adjustments for mobile devices */
@@ -956,6 +903,8 @@ body {
   .reference-page-container,
   .reference-container {
     padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .reference-tabs {
@@ -970,11 +919,22 @@ body {
 
   .reference-content-area {
     padding: 20px;
+    width: 100%;
   }
+
+  /* make tables scroll horizontally instead of compressing columns too small */
+  .reference-table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 
   /* on small screens let table cells wrap and reduce font size so page fits in one view */
   .reference-table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
   }
 
@@ -1019,7 +979,6 @@ body {
   .reference-table-container h2 {
     font-size: 20px;
   }
-}
 
 @media (max-width: 480px) {
   .reference-intro {
@@ -3359,6 +3318,16 @@ body {
 .tags-list {
   display: grid;
   gap: 16px;
+  /* cards flexibly stretch between a minimum and maximum width */
+  /* larger minimum gives wider cards on desktop/tablet */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  justify-content: center;
+}
+
+/* limit how wide an individual card can grow */
+.tag-card {
+  max-width: 800px;
+  width: 100%;
 }
 
 /* mobile improvements for tag page */
@@ -3373,16 +3342,17 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+  .category-filters-dropdown {
+    display: none; /* hide dropdown on phones/tablets */
+  }
   .tags-list {
     grid-template-columns: 1fr;
   }
   .tag-card {
     padding: 12px;
-  }
-  .tag-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+    box-sizing: border-box;
+    max-width: 330px;
+    width: 100%;
   }
   .tag-name {
     font-size: 14px;
@@ -3392,16 +3362,6 @@ body {
   .tag-notes {
     font-size: 13px;
   }
-  .tag-attributes .attribute-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  /* ensure examples and previews never overflow container */
-  .tag-example,
-  .rendering-container {
-    overflow-x: auto;
-  }
 }
 
 .tag-card {
@@ -3410,6 +3370,8 @@ body {
   border-radius: 8px;
   padding: 16px;
   background: #f8f8f8;
+  /* width rules are declared earlier so they can be adjusted centrally */
+  box-sizing: border-box;
 }
 
 .dark-mode .tag-card {
@@ -3600,21 +3562,6 @@ body {
   border-radius: 4px;
   overflow: hidden;
   background: white;
-}
-
-/* ensure any actual tables in the rendering preview are responsive */
-.rendering-container table {
-  width: 100%;
-  border-collapse: collapse;
-  max-width: 100%;
-  display: block;
-  overflow-x: auto;
-}
-
-/* also make example tables inside code blocks wrap */
-.tag-example table {
-  width: 100%;
-  border-collapse: collapse;
 }
 
 .dark-mode .rendering-container {

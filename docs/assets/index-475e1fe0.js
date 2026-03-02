@@ -21764,7 +21764,7 @@ worker.onmessage = function(event) {
           user == null ? void 0 : user.name,
           "!"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Sign Out" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" })
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-title", children: [
@@ -22580,20 +22580,8 @@ const getRenderingExample = (tagName) => {
 };
 const TagsPage = ({ onBack, onViewReferences }) => {
   const { user, logout } = useAuth();
-  const [searchTerm, setSearchTerm] = reactExports.useState("");
-  const [selectedCategory, setSelectedCategory] = reactExports.useState(null);
   const [expandedTag, setExpandedTag] = reactExports.useState(null);
-  const categories = reactExports.useMemo(
-    () => [...new Set(HTML_TAGS_REFERENCE.map((tag) => tag.category))],
-    []
-  );
-  const filteredTags = reactExports.useMemo(() => {
-    return HTML_TAGS_REFERENCE.filter((tag) => {
-      const matchesSearch = searchTerm === "" || tag.name.toLowerCase().includes(searchTerm.toLowerCase()) || tag.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === null || tag.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [searchTerm, selectedCategory]);
+  const filteredTags = HTML_TAGS_REFERENCE;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "study-container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "study-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "w3schools-nav", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-logo", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "logo-text", children: "AUSDAV" }) }),
@@ -22608,84 +22596,47 @@ const TagsPage = ({ onBack, onViewReferences }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "HTML Tags Reference" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Browse and search all HTML tags with examples" })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tags-page-container", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tags-controls", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "text",
-            className: "search-input",
-            placeholder: "Search tags... (e.g., 'div', 'link', 'form')",
-            value: searchTerm,
-            onChange: (e) => setSearchTerm(e.target.value)
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "category-filters", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              className: `category-btn ${selectedCategory === null ? "active" : ""}`,
-              onClick: () => setSelectedCategory(null),
-              children: "All Tags"
-            }
-          ),
-          categories.map((category) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              className: `category-btn ${selectedCategory === category ? "active" : ""}`,
-              onClick: () => setSelectedCategory(category),
-              children: category
-            },
-            category
-          ))
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tags-page-container", children: filteredTags.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "no-results", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No tags found." }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tags-list", children: filteredTags.map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-header-clickable", onClick: () => setExpandedTag(expandedTag === tag.name ? null : tag.name), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tag-expand-icon", children: expandedTag === tag.name ? "▼" : "▶" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-header", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "tag-name", children: [
+            "<",
+            tag.name,
+            ">"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tag-category", children: tag.category })
         ] })
       ] }),
-      filteredTags.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "no-results", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-        'No tags found matching "',
-        searchTerm,
-        '"'
-      ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tags-list", children: filteredTags.map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-card", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-header-clickable", onClick: () => setExpandedTag(expandedTag === tag.name ? null : tag.name), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tag-expand-icon", children: expandedTag === tag.name ? "▼" : "▶" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-header", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "tag-name", children: [
-              "<",
-              tag.name,
-              ">"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tag-category", children: tag.category })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "tag-description", children: tag.description }),
-        tag.syntax && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-syntax", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Syntax:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: tag.syntax })
-        ] }),
-        tag.commonAttributes && tag.commonAttributes.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-attributes", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Common Attributes:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "attribute-list", children: tag.commonAttributes.map((attr, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "attribute-badge", children: attr }, i)) })
-        ] }),
-        tag.example && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-example", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Example:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: tag.example }) })
-        ] }),
-        tag.notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-notes", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "💡 Note:" }),
-          " ",
-          tag.notes
-        ] }),
-        expandedTag === tag.name && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-rendering", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Visual Preview:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: "rendering-container",
-              dangerouslySetInnerHTML: { __html: getRenderingExample(tag.name) }
-            }
-          )
-        ] })
-      ] }, tag.name)) })
-    ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "tag-description", children: tag.description }),
+      tag.syntax && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-syntax", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Syntax:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: tag.syntax })
+      ] }),
+      tag.commonAttributes && tag.commonAttributes.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-attributes", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Common Attributes:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "attribute-list", children: tag.commonAttributes.map((attr, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "attribute-badge", children: attr }, i)) })
+      ] }),
+      tag.example && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-example", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Example:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: tag.example }) })
+      ] }),
+      tag.notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-notes", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "💡 Note:" }),
+        " ",
+        tag.notes
+      ] }),
+      expandedTag === tag.name && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-rendering", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Visual Preview:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "rendering-container",
+            dangerouslySetInnerHTML: { __html: getRenderingExample(tag.name) }
+          }
+        )
+      ] })
+    ] }, tag.name)) }) })
   ] });
 };
 const styles = "";
