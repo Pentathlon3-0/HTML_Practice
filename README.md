@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Quiz Practice Website
 
 A modern, interactive quiz practice platform built with **React** and **TypeScript**. Features user authentication and HTML fill-in-the-blanks quizzes with real-time feedback.
@@ -241,3 +242,6 @@ MIT License - Feel free to use this project for educational purposes
 ---
 
 Built with ❤️ using React + TypeScript
+=======
+# HTML
+>>>>>>> fd41af6c504af38635a6bca41209634124eac778
