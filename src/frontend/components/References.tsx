@@ -93,13 +93,6 @@ export const References = ({ onBack, onViewTags }: ReferencesProps) => {
         </nav>
       </header>
 
-      <div className="page-header">
-        <div className="page-title">
-          <h1>HTML Reference</h1>
-          <p>Complete reference of HTML elements, attributes, and events</p>
-        </div>
-      </div>
-
       <div className="reference-page-container">
         <div className="reference-tabs">
           <button 

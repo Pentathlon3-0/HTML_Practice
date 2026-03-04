@@ -58,13 +58,6 @@ export const TagsPage = ({ onBack, onViewReferences }: TagsPageProps) => {
         </nav>
       </header>
 
-      <div className="page-header">
-        <div className="page-title">
-          <h1>HTML Tags Reference</h1>
-          <p>Browse and search all HTML tags with examples</p>
-        </div>
-      </div>
-
       <div className="tags-page-container">
         {/* no controls: all tags shown regardless of category */}
 

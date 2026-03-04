@@ -22,7 +22,7 @@ export const StudyArea = ({ onBack, onSelectQuestion, onViewReferences, onViewTa
     return saved ? parseInt(saved) : null;
   });
   const [showingHtmlQuiz, setShowingHtmlQuiz] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const tasksRef = React.useRef<HTMLDivElement>(null);
   
   // Load questions from database
@@ -1079,9 +1079,12 @@ worker.onmessage = function(event) {
       <header className="study-header">
         <nav className="w3schools-nav">
           <div className="nav-left">
+            <div className="nav-brand">
+              <span className="brand-logo">AUSDAV</span>
+            </div>
             <button 
               className="mobile-menu-toggle" 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle sidebar"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1090,9 +1093,6 @@ worker.onmessage = function(event) {
                 <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
-            <div className="nav-brand">
-              <span className="brand-logo">AUSDAV</span>
-            </div>
             <div className="nav-menu">
               <button className="nav-item active">Tutorials</button>
               <button className="nav-item" onClick={onViewReferences}>References</button>
@@ -1106,35 +1106,31 @@ worker.onmessage = function(event) {
         </nav>
       </header>
 
-      <div className="page-header">
-        <div className="page-title">
-          <h1>HTML Tutorial</h1>
-          <p>Learn HTML from the basics</p>
-        </div>
-      </div>
-
       <div className="study-content">
         <div className="study-layout">
-          <aside className={`study-sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`} aria-label="HTML topics">
+          <aside className={`study-sidebar fixed left-0 top-0 h-full z-50 w-[280px] sm:w-[300px] bg-[#020617]/80 backdrop-blur-xl border-r border-white/10 rounded-r-2xl shadow-[0_0_40px_rgba(59,130,246,0.15)] p-6 space-y-4 transition-transform duration-300 overflow-y-auto relative ${sidebarOpen ? 'translate-x-0' : 'translate-x-[-100%]'}`} aria-label="HTML topics">
             <button 
-              className="sidebar-close-btn" 
-              onClick={() => setIsSidebarOpen(false)}
+              className="sidebar-close-btn absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20 transition"
+              onClick={() => setSidebarOpen(false)}
               aria-label="Close sidebar"
             >
-              ✕
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
             
-            <div className="sidebar-title">HTML Topics</div>
-            <ul className="topic-list">
+            <div className="sidebar-title text-blue-400 font-semibold tracking-wider text-sm uppercase mb-6">HTML Topics</div>
+            <ul className="topic-list space-y-2">
               {lessons.map((lesson) => (
                 <li key={lesson.id}>
                   <button
-                    className={`topic-item ${lesson.id === activeLessonId && !isShowingTask && !showingHtmlQuiz ? 'active' : ''}`}
+                    className={`topic-item relative isolate flex items-center w-full px-4 py-3 rounded-full text-slate-300 transition-all duration-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] ${lesson.id === activeLessonId && !isShowingTask && !showingHtmlQuiz ? "active bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-[0_0_25px_rgba(59,130,246,0.7)] before:content-[''] before:absolute before:inset-0 before:bg-blue-500/20 before:blur-xl before:rounded-full before:-z-10" : ''}`}
                     onClick={() => {
                       setActiveLessonId(lesson.id);
                       setSelectedTaskId(null);
                       setShowingHtmlQuiz(false);
-                      setIsSidebarOpen(false);
+                      setSidebarOpen(false);
                     }}
                   >
                     {lesson.title}
@@ -1145,17 +1141,17 @@ worker.onmessage = function(event) {
             
             {tasksLoaded || questions.length > 0 ? (
               <>
-                <div ref={tasksRef} className="sidebar-title" style={{ marginTop: '24px' }}>HTML Tasks</div>
-                <ul className="topic-list">
+                <div ref={tasksRef} className="sidebar-title mt-6 text-blue-400 font-semibold tracking-wider text-sm uppercase">HTML Tasks</div>
+                <ul className="topic-list space-y-2">
                   {questions.length > 0 ? (
                     questions.map((question) => (
                       <li key={`task-${question.id}`}>
                         <button
-                          className={`topic-item ${selectedTaskId === question.id && !showingHtmlQuiz ? 'active' : ''}`}
+                          className={`topic-item relative isolate flex items-center w-full px-4 py-3 rounded-full text-slate-300 transition-all duration-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] ${selectedTaskId === question.id && !showingHtmlQuiz ? "active bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-[0_0_25px_rgba(59,130,246,0.7)] before:content-[''] before:absolute before:inset-0 before:bg-blue-500/20 before:blur-xl before:rounded-full before:-z-10" : ''}`}
                           onClick={() => {
                             setSelectedTaskId(question.id);
                             setShowingHtmlQuiz(false);
-                            setIsSidebarOpen(false);
+                            setSidebarOpen(false);
                           }}
                         >
                           {question.title}
@@ -1171,16 +1167,16 @@ worker.onmessage = function(event) {
               </>
             ) : null}
             
-            <div className="sidebar-title" style={{ marginTop: '24px' }}>Quiz</div>
-            <ul className="topic-list">
+            <div className="sidebar-title mt-6 text-blue-400 font-semibold tracking-wider text-sm uppercase">Quiz</div>
+            <ul className="topic-list space-y-2">
               <li>
                 <button
-                  className={`topic-item ${showingHtmlQuiz ? 'active' : ''}`}
+                  className={`topic-item relative isolate flex items-center w-full px-4 py-3 rounded-full text-slate-300 transition-all duration-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] ${showingHtmlQuiz ? "active bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-[0_0_25px_rgba(59,130,246,0.7)] before:content-[''] before:absolute before:inset-0 before:bg-blue-500/20 before:blur-xl before:rounded-full before:-z-10" : ''}`}
                   onClick={() => {
                     setShowingHtmlQuiz(true);
                     setSelectedTaskId(null);
                     setActiveLessonId('');
-                    setIsSidebarOpen(false);
+                    setSidebarOpen(false);
                   }}
                 >
                   HTML Quiz (30 Questions)
@@ -1193,28 +1189,28 @@ worker.onmessage = function(event) {
             {showingHtmlQuiz ? (
               <>
                 <section className="study-section">
-                  <h2>HTML Quiz</h2>
-                  <p style={{ color: '#666', marginBottom: '20px' }}>30 questions covering HTML concepts. Select the correct answer or fill in the blank.</p>
-                  <p style={{ color: '#999', marginBottom: '20px' }}>Question {startIdx + 1} - {Math.min(endIdx, htmlQuizQuestions.length)} of {htmlQuizQuestions.length}</p>
+                  <h2 className="quiz-header-title">HTML Quiz</h2>
+                  <p className="quiz-header-desc">30 questions covering HTML concepts. Select the correct answer or fill in the blank.</p>
+                  <p className="quiz-header-progress">Question {startIdx + 1} - {Math.min(endIdx, htmlQuizQuestions.length)} of {htmlQuizQuestions.length}</p>
                   {quizSubmitted && (
-                    <div style={{ background: '#e8f5e9', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '2px solid #4caf50' }}>
-                      <h3 style={{ margin: '0 0 8px 0', color: '#2e7d32' }}>Quiz Completed!</h3>
-                      <p style={{ margin: 0, fontSize: '18px', color: '#333' }}>Score: <strong>{quizScore}/{htmlQuizQuestions.length}</strong> ({Math.round((quizScore / htmlQuizQuestions.length) * 100)}%)</p>
+                    <div className="quiz-result-box">
+                      <h3 className="quiz-result-title">Quiz Completed!</h3>
+                      <p className="quiz-result-score">Score: <strong>{quizScore}/{htmlQuizQuestions.length}</strong> ({Math.round((quizScore / htmlQuizQuestions.length) * 100)}%)</p>
                     </div>
                   )}
                 </section>
                 
-                <div style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px' }}>
+                <div className="quiz-container">
                   {currentPageQuestions.map((q, idx) => {
                     const globalIdx = startIdx + idx;
                     return (
-                      <div key={q.id} style={{ marginBottom: idx !== currentPageQuestions.length - 1 ? '24px' : '0', paddingBottom: idx !== currentPageQuestions.length - 1 ? '24px' : '0', borderBottom: idx !== currentPageQuestions.length - 1 ? '1px solid #e0e0e0' : 'none' }}>
-                        <h4 style={{ margin: '0 0 12px 0', color: '#333' }}>Q{globalIdx + 1}. {q.question}</h4>
+                      <div key={q.id} className="quiz-question-block">
+                        <h4 className="quiz-question-title">Q{globalIdx + 1}. {q.question}</h4>
                         
                         {q.type === 'multiple' ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div className="quiz-options">
                             {(q as any).options?.map((option: string, optIdx: number) => (
-                              <label key={optIdx} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px', borderRadius: '6px', background: quizAnswers[q.id] === optIdx.toString() ? '#e3f2fd' : 'transparent' }}>
+                              <label key={optIdx} className="quiz-option-label">
                                 <input
                                   type="radio"
                                   name={`q${q.id}`}
@@ -1226,9 +1222,9 @@ worker.onmessage = function(event) {
                                   }}
                                   disabled={quizSubmitted}
                                 />
-                                <span>{option}</span>
-                                {quizSubmitted && optIdx === q.correct && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓</span>}
-                                {quizSubmitted && quizAnswers[q.id] === optIdx.toString() && optIdx !== q.correct && <span style={{ color: '#f44336', fontWeight: 'bold' }}>✗</span>}
+                                <span className="quiz-option-text">{option}</span>
+                                {quizSubmitted && optIdx === q.correct && <span className="quiz-correct-mark">✓</span>}
+                                {quizSubmitted && quizAnswers[q.id] === optIdx.toString() && optIdx !== q.correct && <span className="quiz-wrong-mark">✗</span>}
                               </label>
                             ))}
                           </div>
@@ -1243,21 +1239,14 @@ worker.onmessage = function(event) {
                               }}
                               disabled={quizSubmitted}
                               placeholder="Type your answer..."
-                              style={{
-                                width: '100%',
-                                padding: '8px 12px',
-                                border: '2px solid #ddd',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontFamily: 'Courier New, monospace'
-                              }}
+                              className="quiz-input"
                             />
                             {quizSubmitted && (
-                              <div style={{ marginTop: '8px', fontSize: '14px' }}>
+                              <div className="quiz-answer-feedback">
                                 {quizAnswers[q.id]?.toLowerCase().trim() === (q as any).answer?.toLowerCase() ? (
-                                  <span style={{ color: '#4caf50' }}>✓ Correct</span>
+                                  <span className="quiz-correct-text">✓ Correct</span>
                                 ) : (
-                                  <div style={{ color: '#f44336' }}>
+                                  <div className="quiz-incorrect-text">
                                     <span>✗ Incorrect. Answer: <strong>{q.answer}</strong></span>
                                   </div>
                                 )}
@@ -1366,15 +1355,7 @@ worker.onmessage = function(event) {
               </>
             ) : (
               <>
-                <nav className="breadcrumb">
-                  <span className="breadcrumb-item">HTML Learning</span>
-                  <span className="breadcrumb-separator">›</span>
-                  <span className="breadcrumb-item active">{activeLesson.title}</span>
-                  <span className="breadcrumb-separator" style={{ marginLeft: 'auto' }}></span>
-                  <span className="breadcrumb-item" style={{ marginLeft: 'auto' }}>
-                    Lesson {lessons.findIndex(l => l.id === activeLessonId) + 1} of {lessons.length}
-                  </span>
-                </nav>
+                { /* Breadcrumb removed per user request */ }
                 
                 <section className="study-section">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1396,6 +1377,8 @@ worker.onmessage = function(event) {
               <section className="study-section">
                 <div className="code-header">
                   <h3>{activeLesson.exampleTitle}</h3>
+                </div>
+                <pre className="study-code">
                   <button 
                     className="copy-btn"
                     onClick={() => {
@@ -1405,10 +1388,17 @@ worker.onmessage = function(event) {
                     }}
                     title="Copy code to clipboard"
                   >
-                    {copiedCode === activeLesson.code ? '✓ Copied!' : '📋 Copy Code'}
+                    {copiedCode === activeLesson.code ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                    )}
                   </button>
-                </div>
-                <pre className="study-code">
                   <code>{activeLesson.code}</code>
                 </pre>
               </section>
@@ -1418,13 +1408,15 @@ worker.onmessage = function(event) {
               <section className="study-section">
                 <h3>⚠️ Common Mistakes</h3>
                 <div className="mistakes-container">
-                  {activeLesson.commonMistakes.map((item, index) => (
-                    <div key={index} className="mistake-card">
-                      <p className="mistake-text">{item.mistake}</p>
-                      <p className="mistake-why"><strong>Why:</strong> {item.why}</p>
-                      <p className="mistake-correct">{item.correct}</p>
-                    </div>
-                  ))}
+                  <div className="mistake-card">
+                    {activeLesson.commonMistakes.map((item, index) => (
+                      <div key={index} className="mistake-item">
+                        <p className="mistake-text">{item.mistake}</p>
+                        <p className="mistake-why"><strong>Why:</strong> {item.why}</p>
+                        <p className="mistake-correct">{item.correct}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
@@ -1433,11 +1425,11 @@ worker.onmessage = function(event) {
               <section className="study-section">
                 <h3>💡 Tips & Notes</h3>
                 <div className="tips-container">
-                  {activeLesson.tips.map((tip, index) => (
-                    <div key={index} className="tip-box">
-                      {tip}
-                    </div>
-                  ))}
+                  <div className="tip-box">
+                    {activeLesson.tips.map((tip, index) => (
+                      <p key={index} className="tip-item">{tip}</p>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
@@ -1446,11 +1438,11 @@ worker.onmessage = function(event) {
               <section className="study-section">
                 <h3>✓ Best Practices</h3>
                 <div className="best-practices-container">
-                  {activeLesson.bestPractices.map((practice, index) => (
-                    <div key={index} className="practice-box">
-                      {practice}
-                    </div>
-                  ))}
+                  <div className="practice-box">
+                    {activeLesson.bestPractices.map((practice, index) => (
+                      <p key={index} className="practice-item">{practice}</p>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
@@ -1471,16 +1463,16 @@ worker.onmessage = function(event) {
                 />
                 <div className="try-actions">
                   <button 
-                    className="preview-btn"
+                    className="nav-btn next-btn"
                     onClick={() => setShowPreview(!showPreview)}
                   >
-                    {showPreview ? '📝 Hide Preview' : '👁️ Show Preview'}
+                    {showPreview ? 'Hide Preview' : 'Show Preview'}
                   </button>
                   <button 
-                    className="reset-btn"
+                    className="nav-btn next-btn"
                     onClick={() => setUserCode(activeLesson.code)}
                   >
-                    🔄 Reset Code
+                    Reset Code
                   </button>
                 </div>
                 {showPreview && (
@@ -1495,13 +1487,15 @@ worker.onmessage = function(event) {
               </section>
             )}
 
-            <section className="study-section key-takeaways">
+            <section className="study-section">
               <h3>📌 Key Takeaways</h3>
-              <ul className="takeaways-list">
-                {activeLesson.bullets.slice(0, 3).map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
+              <div className="key-takeaways">
+                <ul className="takeaways-list">
+                  {activeLesson.bullets.slice(0, 3).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </section>
             
             <div className="lesson-navigation">
