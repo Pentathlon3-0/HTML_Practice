@@ -18635,9 +18635,20 @@ function shouldShowDeprecationWarning() {
   return parseInt(versionMatch[1], 10) <= 18;
 }
 if (shouldShowDeprecationWarning()) console.warn("⚠️  Node.js 18 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 20 or later. For more information, visit: https://github.com/orgs/supabase/discussions/37217");
-const SUPABASE_URL = "https://cfrqpgupqgrqdynzmakz.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmcnFwZ3VwcWdycWR5bnptYWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NzQwNTYsImV4cCI6MjA4ODE1MDA1Nn0.cDVRP_Rf0udFHbCrRZu6IfSqwtJ-v5PnIBw_UNnp7Rk";
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://qxtrzxoxgzexfmcyjwji.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4dHJ6eG94Z3pleGZtY3lqd2ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MTc2NzgsImV4cCI6MjA4NTM5MzY3OH0.Tn22XWObE_qN-pUzXaQgBz6o4qq8KkEbJhC008237cA";
+const realSupabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const dummySupabase = new Proxy(
+  {},
+  {
+    get() {
+      throw new Error(
+        "Supabase client is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY."
+      );
+    }
+  }
+);
+const supabase = realSupabase || dummySupabase;
 const dbConfig = {
   url: SUPABASE_URL,
   isConfigured: Boolean(SUPABASE_ANON_KEY)
@@ -20948,6 +20959,7 @@ worker.onmessage = function(event) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "study-container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "study-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "w3schools-nav", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "nav-left", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-brand", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "brand-logo", children: "AUSDAV" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -20961,7 +20973,6 @@ worker.onmessage = function(event) {
             ] })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-brand", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "brand-logo", children: "AUSDAV" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "nav-menu", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item active", children: "Tutorials" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item", onClick: onViewReferences, children: "References" }),
@@ -20976,10 +20987,6 @@ worker.onmessage = function(event) {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" })
       ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-title", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "HTML Tutorial" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Learn HTML from the basics" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "study-content", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "study-layout", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: `study-sidebar fixed left-0 top-0 h-full z-50 w-[280px] sm:w-[300px] bg-[#020617]/80 backdrop-blur-xl border-r border-white/10 rounded-r-2xl shadow-[0_0_40px_rgba(59,130,246,0.15)] p-6 space-y-4 transition-transform duration-300 overflow-y-auto relative ${sidebarOpen ? "translate-x-0" : "translate-x-[-100%]"}`, "aria-label": "HTML topics", children: [
@@ -21041,9 +21048,9 @@ worker.onmessage = function(event) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "study-main", children: showingHtmlQuiz ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "HTML Quiz" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#666", marginBottom: "20px" }, children: "30 questions covering HTML concepts. Select the correct answer or fill in the blank." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { color: "#999", marginBottom: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "quiz-header-title", children: "HTML Quiz" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "quiz-header-desc", children: "30 questions covering HTML concepts. Select the correct answer or fill in the blank." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "quiz-header-progress", children: [
             "Question ",
             startIdx + 1,
             " - ",
@@ -21051,9 +21058,9 @@ worker.onmessage = function(event) {
             " of ",
             htmlQuizQuestions.length
           ] }),
-          quizSubmitted && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "#e8f5e9", padding: "16px", borderRadius: "8px", marginBottom: "20px", border: "2px solid #4caf50" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px 0", color: "#2e7d32" }, children: "Quiz Completed!" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: "18px", color: "#333" }, children: [
+          quizSubmitted && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-result-box", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "quiz-result-title", children: "Quiz Completed!" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "quiz-result-score", children: [
               "Score: ",
               /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
                 quizScore,
@@ -21066,16 +21073,16 @@ worker.onmessage = function(event) {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: "#f9f9f9", padding: "20px", borderRadius: "8px" }, children: currentPageQuestions.map((q, idx) => {
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "quiz-container", children: currentPageQuestions.map((q, idx) => {
           const globalIdx = startIdx + idx;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: idx !== currentPageQuestions.length - 1 ? "24px" : "0", paddingBottom: idx !== currentPageQuestions.length - 1 ? "24px" : "0", borderBottom: idx !== currentPageQuestions.length - 1 ? "1px solid #e0e0e0" : "none" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { style: { margin: "0 0 12px 0", color: "#333" }, children: [
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-question-block", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "quiz-question-title", children: [
               "Q",
               globalIdx + 1,
               ". ",
               q.question
             ] }),
-            q.type === "multiple" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: q.options?.map((option, optIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", padding: "8px", borderRadius: "6px", background: quizAnswers[q.id] === optIdx.toString() ? "#e3f2fd" : "transparent" }, children: [
+            q.type === "multiple" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "quiz-options", children: q.options?.map((option, optIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "quiz-option-label", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
@@ -21090,9 +21097,9 @@ worker.onmessage = function(event) {
                   disabled: quizSubmitted
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: option }),
-              quizSubmitted && optIdx === q.correct && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#4caf50", fontWeight: "bold" }, children: "✓" }),
-              quizSubmitted && quizAnswers[q.id] === optIdx.toString() && optIdx !== q.correct && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#f44336", fontWeight: "bold" }, children: "✗" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "quiz-option-text", children: option }),
+              quizSubmitted && optIdx === q.correct && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "quiz-correct-mark", children: "✓" }),
+              quizSubmitted && quizAnswers[q.id] === optIdx.toString() && optIdx !== q.correct && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "quiz-wrong-mark", children: "✗" })
             ] }, optIdx)) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
@@ -21105,17 +21112,10 @@ worker.onmessage = function(event) {
                   },
                   disabled: quizSubmitted,
                   placeholder: "Type your answer...",
-                  style: {
-                    width: "100%",
-                    padding: "8px 12px",
-                    border: "2px solid #ddd",
-                    borderRadius: "6px",
-                    fontSize: "14px",
-                    fontFamily: "Courier New, monospace"
-                  }
+                  className: "quiz-input"
                 }
               ),
-              quizSubmitted && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "8px", fontSize: "14px" }, children: quizAnswers[q.id]?.toLowerCase().trim() === q.answer?.toLowerCase() ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#4caf50" }, children: "✓ Correct" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "#f44336" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              quizSubmitted && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "quiz-answer-feedback", children: quizAnswers[q.id]?.toLowerCase().trim() === q.answer?.toLowerCase() ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "quiz-correct-text", children: "✓ Correct" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "quiz-incorrect-text", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
                 "✗ Incorrect. Answer: ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: q.answer })
               ] }) }) })
@@ -21227,18 +21227,6 @@ worker.onmessage = function(event) {
           )
         ] })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "breadcrumb", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "breadcrumb-item", children: "HTML Learning" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "breadcrumb-separator", children: "›" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "breadcrumb-item active", children: activeLesson.title }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "breadcrumb-separator", style: { marginLeft: "auto" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "breadcrumb-item", style: { marginLeft: "auto" }, children: [
-            "Lesson ",
-            lessons.findIndex((l) => l.id === activeLessonId) + 1,
-            " of ",
-            lessons.length
-          ] })
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: activeLesson.heading }),
@@ -21247,8 +21235,8 @@ worker.onmessage = function(event) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "study-bullets", children: activeLesson.bullets.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: item }, index)) })
         ] }),
         activeLesson.code && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "code-header", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: activeLesson.exampleTitle }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "code-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: activeLesson.exampleTitle }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("pre", { className: "study-code", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -21259,15 +21247,18 @@ worker.onmessage = function(event) {
                   setTimeout(() => setCopiedCode(null), 2e3);
                 },
                 title: "Copy code to clipboard",
-                children: copiedCode === activeLesson.code ? "✓ Copied!" : "📋 Copy Code"
+                children: copiedCode === activeLesson.code ? /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "20 6 9 17 4 12" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" })
+                ] })
               }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "study-code", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: activeLesson.code }) })
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: activeLesson.code })
+          ] })
         ] }),
         activeLesson.commonMistakes && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "⚠️ Common Mistakes" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mistakes-container", children: activeLesson.commonMistakes.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mistake-card", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mistakes-container", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mistake-card", children: activeLesson.commonMistakes.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mistake-item", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mistake-text", children: item.mistake }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mistake-why", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Why:" }),
@@ -21275,15 +21266,15 @@ worker.onmessage = function(event) {
               item.why
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mistake-correct", children: item.correct })
-          ] }, index)) })
+          ] }, index)) }) })
         ] }),
         activeLesson.tips && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "💡 Tips & Notes" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tips-container", children: activeLesson.tips.map((tip, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tip-box", children: tip }, index)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tips-container", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tip-box", children: activeLesson.tips.map((tip, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "tip-item", children: tip }, index)) }) })
         ] }),
         activeLesson.bestPractices && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "✓ Best Practices" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "best-practices-container", children: activeLesson.bestPractices.map((practice, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "practice-box", children: practice }, index)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "best-practices-container", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "practice-box", children: activeLesson.bestPractices.map((practice, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "practice-item", children: practice }, index)) }) })
         ] }),
         activeLesson.code && activeLesson.id !== "intro" && activeLesson.id !== "editors" && /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "✏️ Try It Yourself!" }),
@@ -21303,17 +21294,17 @@ worker.onmessage = function(event) {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                className: "preview-btn",
+                className: "nav-btn next-btn",
                 onClick: () => setShowPreview(!showPreview),
-                children: showPreview ? "📝 Hide Preview" : "👁️ Show Preview"
+                children: showPreview ? "Hide Preview" : "Show Preview"
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                className: "reset-btn",
+                className: "nav-btn next-btn",
                 onClick: () => setUserCode(activeLesson.code),
-                children: "🔄 Reset Code"
+                children: "Reset Code"
               }
             )
           ] }),
@@ -21328,9 +21319,9 @@ worker.onmessage = function(event) {
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section key-takeaways", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "📌 Key Takeaways" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "takeaways-list", children: activeLesson.bullets.slice(0, 3).map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: item }, index)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "key-takeaways", children: /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "takeaways-list", children: activeLesson.bullets.slice(0, 3).map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: item }, index)) }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lesson-navigation", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -21429,10 +21420,6 @@ const References = ({ onBack, onViewTags }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item", onClick: onViewTags, children: "Tags" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" }) })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-title", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "HTML Reference" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Complete reference of HTML elements, attributes, and events" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "reference-page-container", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "reference-tabs", children: [
@@ -21801,10 +21788,6 @@ const TagsPage = ({ onBack, onViewReferences }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "nav-item active", children: "Tags" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" }) })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-title", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "HTML Tags Reference" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Browse and search all HTML tags with examples" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tags-page-container", children: filteredTags.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "no-results", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No tags found." }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tags-list", children: filteredTags.map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "tag-header-clickable", onClick: () => setExpandedTag(expandedTag === tag.name ? null : tag.name), children: [
