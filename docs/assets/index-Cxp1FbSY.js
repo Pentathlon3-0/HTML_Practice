@@ -22500,7 +22500,7 @@ worker.onmessage = function(event) {
                 sessionStorage.setItem("studyAreaFromTaskPreview", "true");
                 onSelectQuestion(selectedTaskId);
               },
-              children: "Solve This Task →"
+              children: "Solve This Task"
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(

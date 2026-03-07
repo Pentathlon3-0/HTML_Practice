@@ -1345,7 +1345,7 @@ worker.onmessage = function(event) {
                       onSelectQuestion(selectedTaskId);
                     }}
                   >
-                    Solve This Task →
+                    Solve This Task 
                   </button>
                   <button 
                     className="nav-btn next-btn"
