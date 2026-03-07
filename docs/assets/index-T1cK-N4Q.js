@@ -22286,7 +22286,7 @@ worker.onmessage = function(event) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "nav-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "logout-btn", onClick: logout, children: "Logout" }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "study-content", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "study-layout", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: `study-sidebar fixed left-0 top-0 h-full z-50 w-[280px] sm:w-[300px] bg-[#020617]/80 backdrop-blur-xl border-r border-white/10 rounded-r-2xl shadow-[0_0_40px_rgba(59,130,246,0.15)] p-6 space-y-4 transition-transform duration-300 overflow-y-auto relative ${sidebarOpen ? "sidebar-open translate-x-0" : "translate-x-[-100%]"}`, "aria-label": "HTML topics", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: `study-sidebar fixed left-0 top-0 h-full z-50 w-[240px] sm:w-[260px] bg-[#020617]/80 backdrop-blur-xl border-r border-white/10 rounded-r-2xl shadow-[0_0_40px_rgba(59,130,246,0.15)] p-6 space-y-4 transition-transform duration-300 overflow-y-auto relative ${sidebarOpen ? "sidebar-open translate-x-0" : "translate-x-[-100%]"}`, "aria-label": "HTML topics", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
