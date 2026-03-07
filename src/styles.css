@@ -1324,7 +1324,93 @@ a.button:focus {
   width: 100%;
   border-collapse: collapse;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: 900px;
+  min-width: 900px; /* overwritten via media query on small screens */
+}
+
+/* responsive adjustments */
+@media (max-width: 768px) {
+  .reference-page-container {
+    padding: 16px;
+    padding-right: 6px;
+    padding-left: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .reference-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ref-tab {
+    padding: 6px 6px;
+    font-size: 14px;
+  }
+  .reference-table {
+    min-width: auto;
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    word-break: break-word;
+    white-space: normal;
+  }
+  .reference-table th,
+  .reference-table td {
+    padding: 6px 5px;
+    font-size: 14px;
+  }
+  .tag-card {
+    min-width: auto;
+    padding: 4px;
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-card {
+    padding: 5px;
+  }
+}
+
+
+/* extra-small phone layout: convert table to stacked cards */
+@media (max-width: 480px) {
+  .reference-table,
+  .reference-table thead,
+  .reference-table tbody,
+  .reference-table th,
+  .reference-table td,
+  .reference-table tr {
+    display: block;
+    width: 100%;
+  }
+  .reference-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  .reference-table tr {
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px;
+  }
+  .reference-table td {
+    border: none;
+    position: relative;
+    padding-left: 12px;
+    text-align: left;
+  }
+  .reference-table td:before {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    padding-right: 0;
+    display: block;
+    margin-bottom: 4px;
+    white-space: normal;
+    font-weight: 600;
+    color: #94a3b8;
+    content: attr(data-label);
+  }
 }
 
 .reference-table thead {
@@ -1390,6 +1476,14 @@ a.button:focus {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
   padding: 28px;
   margin: 0 auto;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .tags-page-container {
+    padding: 16px;
+  }
 }
 
 .tags-controls {
@@ -3744,6 +3838,64 @@ a.button:focus {
 
 /* override fullscreen styles to simple content‑sized modal */
 .fullscreen-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+
+/* HTML tags reference overlay/modal */
+.tags-reference-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+  overflow-y: auto;
+  padding: 20px;
+}
+.tags-reference-modal {
+  background: rgba(15,23,42,0.9);
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  color: #e2e8f0; /* ensure text is visible on dark background */
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .tags-reference-modal {
+    padding: 6px;
+    max-width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+  .tag-card {
+    padding: 6px;
+    min-width: auto;
+    border-left-width: 2px;
+    width: 100%;
+  }
+  .tag-name {
+    font-size: 12px;
+  }
+  .tag-description, .tag-syntax, .tag-attributes, .tag-example {
+    font-size: 11px;
+  }
+  .rendering-container iframe {
+    height: 80px;
+  }
+  /* reduce input widths inside examples if any */
+  .tag-example code {
+    font-size: 11px;
+    word-break: break-word;
+    white-space: pre-wrap;
+    padding: 4px;
+  }
+  .tag-example pre {
+    padding: 6px;
+  }
+}
 .fullscreen-card { background: #0f172a; color: #fff; padding: 24px; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); width: auto; height: auto; }
 .fullscreen-card, .fullscreen-card * { color: #fff !important; }
 .fullscreen-close { align-self: flex-end; padding: 10px 20px; background: linear-gradient(135deg,#ef4444 0%,#dc2626 100%); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; margin:14px; transition:all 0.3s; box-shadow:0 4px 12px rgba(239,68,68,0.3); }
@@ -3855,7 +4007,8 @@ a.button:focus {
 .tags-list {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(900px, 1fr));
+  /* one card per row for desktop and mobile */
+  grid-template-columns: 1fr;
   justify-content: center;
 }
 

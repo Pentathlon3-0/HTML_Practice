@@ -19301,24 +19301,6 @@ const Quiz = ({ questionId, onBack }) => {
   const [fullscreenCard, setFullscreenCard] = reactExports.useState(null);
   const [fromTaskPreview] = reactExports.useState(() => sessionStorage.getItem("studyAreaFromTaskPreview") === "true");
   const [expandedExplanations, setExpandedExplanations] = reactExports.useState(/* @__PURE__ */ new Set());
-  const [diffHtml, setDiffHtml] = reactExports.useState(null);
-  const computeDifferenceHtml = (user2, expected) => {
-    const normalize = (s) => s.replace(/\s+/g, " ").trim();
-    const u = normalize(user2);
-    const e = normalize(expected);
-    let out = "";
-    const maxLen = Math.max(u.length, e.length);
-    for (let i = 0; i < maxLen; i++) {
-      const cu = u[i] || "";
-      const ce = e[i] || "";
-      if (cu === ce) {
-        out += cu;
-      } else {
-        out += `<mark style="background:yellow;color:black">${cu || ""}</mark>`;
-      }
-    }
-    return out;
-  };
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -19532,21 +19514,12 @@ const Quiz = ({ questionId, onBack }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "iframe",
               {
-                srcDoc: diffHtml !== null ? diffHtml : userCode,
+                srcDoc: userCode,
                 title: "Your Output",
                 style: { width: "100%", height: "200px", border: "none", borderRadius: "4px" },
                 sandbox: "allow-same-origin allow-scripts"
               }
-            ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-footer", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "show-diff-btn", onClick: () => {
-                if (question) {
-                  const diff = computeDifferenceHtml(userCode, generateHtmlOutput(question.htmlContent, {}));
-                  setDiffHtml(diff);
-                }
-              }, children: "Show Difference" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "clear-diff-btn secondary", onClick: () => setDiffHtml(null), children: "Clear Diff" })
-            ] })
+            ) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-box", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-header", children: [
