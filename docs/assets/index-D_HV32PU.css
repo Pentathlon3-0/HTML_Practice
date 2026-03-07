@@ -135,8 +135,12 @@ html, body, #root {
 body {
   font-family: 'Black Chancery', 'Brush Script MT', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   background: linear-gradient(135deg, #020617 0%, #0B1120 50%, #0F172A 100%);
-  color: #e2e8f0;
+  color: #ffffff; /* default text now white */
   min-height: 100vh;
+}
+/* global override: force all text white regardless of other rules */
+body, body * {
+  color: #ffffff !important;
 }
 /* Subtle background pattern */
 body::before {
@@ -1011,10 +1015,10 @@ a.button:focus {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  padding: 30px;
+  gap: 5px;
+  padding: 5px;
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 0 ;
   width: 100%;
 }
 .quiz-main-content {
@@ -1031,7 +1035,7 @@ a.button:focus {
 .quiz-center {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  gap: 5px;
 }
 /* ===== STUDY AREA PAGE STYLES - DARK SAAS ===== */
 .study-container {
@@ -1246,8 +1250,10 @@ a.button:focus {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-  padding: 28px;
+  padding: 20px; /* reduced padding */
   margin: 0 auto;
+  max-width: 900px; /* cap width to avoid overly large card */
+  width: 90%;
 }
 .reference-tabs {
   display: flex;
@@ -1848,7 +1854,7 @@ a.button:focus {
 .blanks-section {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(12px);
-  padding: 28px;
+  padding: 10px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
@@ -1858,10 +1864,16 @@ a.button:focus {
   max-width: 900px;
   margin: 0 auto;
 }
+@media (min-width: 1024px) {
+  .output-box {
+    width: 44vw; /* 70% of viewport width */
+    max-width: none; /* allow expand beyond 900 */
+  }
+}
 /* desktop layout: make preview card occupy 70% of viewport width */
 @media (min-width: 1024px) {
   .html-preview {
-    width: 70vw; /* 70% of viewport width */
+    width: 50vw; /* 70% of viewport width */
     max-width: none; /* allow expand beyond 900 */
   }
 }
@@ -3026,7 +3038,7 @@ a.button:focus {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(129, 180, 255, 0.6);
   border-radius: 12px;
-  padding: 24px;
+  padding: 5px;
   box-shadow: 
     0 0 15px rgba(129, 180, 255, 0.2),
     inset 0 0 30px rgba(129, 180, 255, 0.05);
@@ -3406,7 +3418,7 @@ a.button:focus {
 }
 .output-box,
 .output-box * {
-  color: #f8fafc !important;
+  color: #ffffff !important; /* force pure white throughout output panels */
 }
 .output-box h3 {
   color: #f8fafc;

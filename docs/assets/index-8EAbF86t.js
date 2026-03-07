@@ -19378,7 +19378,8 @@ const Quiz = ({ questionId, onBack }) => {
       const value = blankValues[blank.id] !== void 0 ? blankValues[blank.id] : blank.correctAnswer;
       output = output.replace(regex, value);
     });
-    return output;
+    const style = `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>`;
+    return style + output;
   };
   reactExports.useEffect(() => {
     const loadQuestion = async () => {
@@ -19427,18 +19428,18 @@ const Quiz = ({ questionId, onBack }) => {
   }, [loading, question, submitted]);
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "18px", color: "#667eea", marginBottom: "20px" }, children: "Loading question..." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "18px", color: "#ffffff", marginBottom: "20px" }, children: "Loading question..." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "40px", height: "40px", border: "4px solid #f0f0f0", borderTop: "4px solid #667eea", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto" } })
     ] }) });
   }
   if (!question) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#d32f2f" }, children: "Question not found" });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#ffffff" }, children: "Question not found" });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "quiz-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "header-left", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { children: [
-        "Quiz Practice - Q",
-        question.id
+        "HTML Practice - Q",
+        question.id - 30
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "header-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "timer", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "timer-label", children: "Time Remaining:" }),

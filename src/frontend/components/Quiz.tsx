@@ -258,7 +258,11 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
       output = output.replace(regex, value);
     });
     
-    return output;
+    // inject a small style block so preview iframe text is always white
+    // this is required because the iframe renders arbitrary HTML from the question,
+    // which may contain its own colors. we override it for visibility on dark background.
+    const style = `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>`;
+    return style + output;
   };
 
   // extract what user typed for a specific blank by looking at where placeholder was
@@ -348,7 +352,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '18px', color: '#667eea', marginBottom: '20px' }}>Loading question...</div>
+          <div style={{ fontSize: '18px', color: '#ffffff', marginBottom: '20px' }}>Loading question...</div>
           <div style={{ width: '40px', height: '40px', border: '4px solid #f0f0f0', borderTop: '4px solid #667eea', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
         </div>
       </div>
@@ -356,7 +360,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
   }
 
   if (!question) {
-    return <div style={{ padding: '20px', textAlign: 'center', color: '#d32f2f' }}>Question not found</div>;
+    return <div style={{ padding: '20px', textAlign: 'center', color: '#ffffff' }}>Question not found</div>;
   }
 
 
