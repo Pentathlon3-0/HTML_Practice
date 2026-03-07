@@ -1,4 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-markup'; // HTML highlighting
+import 'prismjs/themes/prism-tomorrow.css'; // dark theme similar to VS Code
+
 import { useAuth } from '../context/AuthContext';
 import { BackendAPI } from '../../backend/api';
 import type { QuestionData } from '../../backend/types';
@@ -1063,6 +1067,11 @@ worker.onmessage = function(event) {
     setUserCode(activeLesson.code);
     setShowPreview(false);
   }, [activeLessonId, activeLesson.code]);
+
+  // highlight lesson code block after render
+  useEffect(() => {
+    Prism.highlightAll();
+  }, [activeLesson.code]);
   
   // Scroll to tasks section when returning from a quiz
   React.useEffect(() => {
@@ -1400,7 +1409,7 @@ worker.onmessage = function(event) {
                       </svg>
                     )}
                   </button>
-                  <code>{activeLesson.code}</code>
+                  <code className="language-html">{activeLesson.code}</code>
                 </pre>
               </section>
             )}
