@@ -114,7 +114,8 @@ VALUES (
     <h1 align="center">My Favorite Image</h1>
     
     <center>
-        <img src="C:\Users\HP\OneDrive\Desktop\HTML\Images\img.jpg" alt="Sample Image" width="400" height="300">
+        <!-- local file paths are blocked by browser; use hosted image or placeholder -->
+        <img src="https://via.placeholder.com/400x300" alt="Sample Image" width="400" height="300">
         <p><i><b><u>Favourite Image</u></b></i></p>
     </center>
 
@@ -149,7 +150,8 @@ VALUES (
         <h1>Beautiful Scenery</h1>
     </center>
 
-    <img src="C:\Users\HP\OneDrive\Desktop\HTML\Images\scenary.jpg" width="500" height="300">
+    <!-- replace with a real image hosted by app or external URL -->
+    <img src="https://via.placeholder.com/500x300" width="500" height="300">
 
     <P>The village is a peaceful haven surrounded by green hills and colorful gardens. A clear river winds through the fields, reflecting the sunlight, while birds sing and flowers bloom all around. The fresh air and calm scenery make it a perfect escape from city life.</p>
 </body>

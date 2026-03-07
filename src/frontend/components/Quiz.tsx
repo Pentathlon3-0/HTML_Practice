@@ -398,6 +398,14 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
                 {checked ? '✓ Checked' : 'Check'}
               </button>
               <button className="submit-btn" onClick={handleSubmit}>Submit</button>
+              <button className="show-answer-btn secondary" onClick={() => {
+                if (question) {
+                  const expected = generateHtmlOutput(question.htmlContent, {});
+                  setUserCode(expected);
+                  setChecked(true);
+                  // do NOT mark as submitted or set score; this is just a preview
+                }
+              }}>Show Answer</button>
             </div>
             <button className="back-button" onClick={() => {
               sessionStorage.removeItem('studyAreaFromTaskPreview');
