@@ -19369,143 +19369,9 @@ const getLearnignTip = (blankId, answer) => {
   };
   return tips[answer.toLowerCase()] || "Pay attention to when and why you use this tag. Proper semantic HTML makes your code more accessible and maintainable.";
 };
-const getHintsForTag = (tagName) => {
-  const hints = {
-    "html": [
-      "💡 It's the root element",
-      "💡 It's a container tag - you need an opening and closing tag",
-      "💡 Every HTML document starts with <html>"
-    ],
-    "head": [
-      "💡 It comes before the <body> tag",
-      "💡 It's where metadata goes (not visible content)",
-      "💡 It's required in HTML documents"
-    ],
-    "body": [
-      "💡 This is where all visible content goes",
-      "💡 It comes after the <head> tag",
-      "💡 There's only one <body> per page"
-    ],
-    "DOCTYPE": [
-      "💡 It's a declaration, not a tag",
-      "💡 It tells the browser this is HTML5",
-      "💡 It must be the very first line of your document"
-    ],
-    "h1": [
-      "💡 It's a heading tag",
-      "💡 It's the largest heading level",
-      "💡 Use it for the main page title"
-    ],
-    "h2": [
-      "💡 It's a heading tag, but smaller than h1",
-      "💡 Use this for main sections",
-      "💡 There can be multiple h2s on one page"
-    ],
-    "p": [
-      '💡 It stands for "paragraph"',
-      "💡 It's a block-level element (creates line breaks)",
-      "💡 Use this for text content"
-    ],
-    "strong": [
-      "💡 It emphasizes text as important",
-      "💡 It displays in bold",
-      "💡 It's semantic (unlike <b>)"
-    ],
-    "em": [
-      '💡 It stands for "emphasis"',
-      "💡 It displays in italic",
-      "💡 It's semantic (unlike <i>)"
-    ],
-    "a": [
-      "💡 It's for creating links",
-      "💡 You need an href attribute",
-      '💡 href stands for "hypertext reference"'
-    ],
-    "img": [
-      "💡 It's for embedding images",
-      "💡 It's a self-closing tag (no </img>)",
-      "💡 You need src and alt attributes"
-    ],
-    "div": [
-      "💡 It's a generic container",
-      "💡 It's a block-level element",
-      "💡 It's often used for layout and styling"
-    ],
-    "span": [
-      "💡 It's a generic inline container",
-      "💡 It doesn't create line breaks",
-      "💡 Use it for styling small portions of text"
-    ],
-    "ul": [
-      '💡 It stands for "unordered list"',
-      "💡 It creates a bulleted list",
-      "💡 It contains <li> elements"
-    ],
-    "ol": [
-      '💡 It stands for "ordered list"',
-      "💡 It creates a numbered list",
-      "💡 It contains <li> elements"
-    ],
-    "li": [
-      '💡 It stands for "list item"',
-      "💡 It's used inside <ul> or <ol>",
-      "💡 The browser automatically numbers them in <ol>"
-    ],
-    "form": [
-      "💡 It's a container for form elements",
-      "💡 It needs action and method attributes",
-      "💡 It groups inputs together for submission"
-    ],
-    "input": [
-      "💡 It's for user input",
-      "💡 It's a self-closing tag",
-      "💡 The type attribute changes what kind of input it is"
-    ],
-    "button": [
-      "💡 It creates a clickable button",
-      "💡 By default, it submits forms",
-      '💡 Use type="button" to prevent submission'
-    ],
-    "table": [
-      "💡 It's for displaying data in rows and columns",
-      "💡 It contains <tr>, <td>, and <th> elements",
-      "💡 Don't use it for layout - use CSS Grid instead"
-    ],
-    "header": [
-      "💡 It's a semantic tag for header content",
-      "💡 It doesn't style itself automatically",
-      "💡 It improves accessibility and SEO"
-    ],
-    "footer": [
-      "💡 It's a semantic tag for footer content",
-      "💡 It's usually at the bottom of the page",
-      "💡 It improves document structure"
-    ],
-    "nav": [
-      "💡 It's for navigation links",
-      "💡 It's semantic and improves accessibility",
-      "💡 Use it only for major navigation"
-    ],
-    "article": [
-      "💡 It's for self-contained content",
-      "💡 It's semantic and improves SEO",
-      "💡 Use it for blog posts, news articles, etc."
-    ],
-    "section": [
-      "💡 It groups related content together",
-      "💡 It's semantic and improves structure",
-      "💡 Each section typically has a heading"
-    ]
-  };
-  return hints[tagName.toLowerCase()] || [
-    "💡 Think about the purpose of this tag",
-    "💡 Consider where it's typically used",
-    "💡 Check the HTML reference for more info"
-  ];
-};
 const Quiz = ({ questionId, onBack }) => {
   const { user, logout } = useAuth();
-  const [answers, setAnswers] = reactExports.useState({});
+  const [userCode, setUserCode] = reactExports.useState("");
   const [timeRemaining, setTimeRemaining] = reactExports.useState(1800);
   const [submitted, setSubmitted] = reactExports.useState(false);
   const [checked, setChecked] = reactExports.useState(false);
@@ -19516,7 +19382,6 @@ const Quiz = ({ questionId, onBack }) => {
   const [fullscreenCard, setFullscreenCard] = reactExports.useState(null);
   const [fromTaskPreview] = reactExports.useState(() => sessionStorage.getItem("studyAreaFromTaskPreview") === "true");
   const [expandedExplanations, setExpandedExplanations] = reactExports.useState(/* @__PURE__ */ new Set());
-  const [shownHints, setShownHints] = reactExports.useState({});
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -19533,20 +19398,17 @@ const Quiz = ({ questionId, onBack }) => {
       return newSet;
     });
   };
-  const showNextHint = (blankId) => {
-    setShownHints((prev) => ({
-      ...prev,
-      [blankId]: (prev[blankId] || 0) + 1
-    }));
-  };
-  const handleAnswerChange = (blankId, value) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [blankId]: value
-    }));
+  const handleCodeChange = (value) => {
+    setUserCode(value);
     if (checked) {
       setChecked(false);
     }
+  };
+  const handleClear = () => {
+    setUserCode("<!DOCTYPE html>\n<html>\n</html>");
+    setChecked(false);
+    setSubmitted(false);
+    setScore(0);
   };
   const handleCheck = () => {
     setChecked(true);
@@ -19555,7 +19417,7 @@ const Quiz = ({ questionId, onBack }) => {
     if (!question) return;
     let correctCount = 0;
     question.blanks.forEach((blank) => {
-      const userAnswer = answers[blank.id]?.toLowerCase().trim();
+      const userAnswer = getUserAnswerForBlank(blank).toLowerCase().trim();
       const correctAnswer = blank.correctAnswer.toLowerCase().trim();
       if (userAnswer === correctAnswer) {
         correctCount++;
@@ -19580,7 +19442,7 @@ const Quiz = ({ questionId, onBack }) => {
   };
   const handleTryAgain = async () => {
     if (!question || !user?.id) return;
-    setAnswers({});
+    setUserCode("<!DOCTYPE html>\n<html>\n</html>");
     setSubmitted(false);
     setChecked(false);
     setScore(0);
@@ -19608,22 +19470,37 @@ const Quiz = ({ questionId, onBack }) => {
     });
     return output;
   };
+  const getUserAnswerForBlank = (blank) => {
+    if (!question) return "";
+    const placeholder = `__${blank.id}__`;
+    const idx = question.htmlContent.indexOf(placeholder);
+    if (idx === -1) return "";
+    const prefix = question.htmlContent.slice(0, idx);
+    const suffix = question.htmlContent.slice(idx + placeholder.length);
+    const start = userCode.indexOf(prefix);
+    if (start === -1) return "";
+    const afterPrefix = start + prefix.length;
+    const end = userCode.indexOf(suffix, afterPrefix);
+    if (end === -1) {
+      return userCode.slice(afterPrefix).trim();
+    }
+    return userCode.slice(afterPrefix, end).trim();
+  };
   reactExports.useEffect(() => {
     const loadQuestion = async () => {
       setLoading(true);
       const questionData = await BackendAPI.questions.getById(questionId);
       setQuestion(questionData);
+      if (questionData) {
+        setUserCode("<!DOCTYPE html>\n<html>\n</html>");
+      }
       if (user?.id && questionData) {
         const { data, error } = await BackendAPI.supabase.from("user_progress").select().eq("user_id", user.id).single();
         if (!error && data) {
           const statusKey = `question_${questionId}_status`;
           const status = data[statusKey];
           if (status === "correct") {
-            const prefilledAnswers = {};
-            questionData.blanks.forEach((blank) => {
-              prefilledAnswers[blank.id] = blank.correctAnswer;
-            });
-            setAnswers(prefilledAnswers);
+            setUserCode(generateHtmlOutput(questionData.htmlContent, {}));
             setIsAlreadyCompleted(true);
             setSubmitted(true);
             setScore(100);
@@ -19661,7 +19538,6 @@ const Quiz = ({ questionId, onBack }) => {
   if (!question) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#d32f2f" }, children: "Question not found" });
   }
-  const displayContent = question.htmlContent.replace(/__BLANK_\d+__/g, '<span class="blank-placeholder">_____</span>');
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "quiz-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "header-left", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { children: [
@@ -19683,8 +19559,23 @@ const Quiz = ({ questionId, onBack }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "quiz-content", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "html-preview", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "HTML Preview" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "code-display", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { children: displayContent }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "HTML Editor / Preview" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "code-display", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            className: "code-editor",
+            value: userCode,
+            onChange: (e) => handleCodeChange(e.target.value),
+            placeholder: "Type the complete HTML here, replacing the __BLANK_x__ placeholders with your answers",
+            disabled: submitted,
+            rows: 15
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "button-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "clear-btn", onClick: handleClear, children: "Clear" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "check-btn", onClick: handleCheck, disabled: checked, children: checked ? "✓ Checked" : "Check" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "submit-btn", onClick: handleSubmit, children: "Submit" })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "back-button", onClick: () => {
           sessionStorage.removeItem("studyAreaFromTaskPreview");
           onBack();
@@ -19694,226 +19585,177 @@ const Quiz = ({ questionId, onBack }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "blanks-section", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Fill in the Blanks" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "blanks-container", children: question.blanks.map((blank, index) => {
-          const userAnswer = answers[blank.id]?.toLowerCase().trim();
-          const correctAnswer = blank.correctAnswer.toLowerCase().trim();
-          const isCorrect = userAnswer === correctAnswer;
-          const showFeedback = checked || submitted;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "blank-input-group", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "blank-label-row", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: blank.id, children: [
-                blank.id,
-                " (",
-                index + 1,
-                " pts)"
-              ] }),
-              !submitted && !isAlreadyCompleted && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  className: "hint-btn",
-                  onClick: () => showNextHint(blank.id),
-                  title: "Get a hint",
-                  children: "💡 Hint"
-                }
-              )
+        fullscreenCard === "your" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fullscreen-card", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-close", onClick: () => setFullscreenCard(null), children: "✕ Close" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "iframe",
+            {
+              srcDoc: userCode,
+              title: "Your Output",
+              style: { width: "100%", height: "100%", border: "none", borderRadius: "4px" },
+              sandbox: "allow-same-origin"
+            }
+          ) })
+        ] }) }),
+        fullscreenCard === "expected" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fullscreen-card", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-close", onClick: () => setFullscreenCard(null), children: "✕ Close" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "iframe",
+            {
+              srcDoc: generateHtmlOutput(question.htmlContent, {}),
+              title: "Expected Output",
+              style: { width: "100%", height: "100%", border: "none", borderRadius: "4px" },
+              sandbox: "allow-same-origin"
+            }
+          ) })
+        ] }) }),
+        checked && !submitted ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-comparison", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-box", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-header", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Your Output" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-btn", onClick: () => setFullscreenCard("your"), title: "Fullscreen", children: "⛶" })
             ] }),
-            shownHints[blank.id] ? shownHints[blank.id] > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hints-container", children: [
-              getHintsForTag(blank.correctAnswer).slice(0, shownHints[blank.id]).map((hint, hintIndex) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hint-item", children: hint }, hintIndex)),
-              shownHints[blank.id] < getHintsForTag(blank.correctAnswer).length && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  className: "hint-btn-small",
-                  onClick: () => showNextHint(blank.id),
-                  children: "Show More Hints"
-                }
-              )
-            ] }) : null,
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                id: blank.id,
-                value: answers[blank.id] || "",
-                onChange: (e) => handleAnswerChange(blank.id, e.target.value),
-                placeholder: "Enter your answer",
-                disabled: submitted,
-                className: showFeedback && userAnswer ? isCorrect ? "correct" : "incorrect" : ""
-              }
-            ),
-            isAlreadyCompleted && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "success-answer", children: "✓ Correct!" }),
-            showFeedback && !isAlreadyCompleted && isCorrect && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "success-answer", children: "✓ Correct!" }),
-            showFeedback && !isAlreadyCompleted && !userAnswer && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-answer", children: "Required" })
-          ] }, blank.id);
-        }) }),
-        checked && !submitted && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          fullscreenCard === "your" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fullscreen-card", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-close", onClick: () => setFullscreenCard(null), children: "✕ Close" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "iframe",
               {
-                srcDoc: generateHtmlOutput(question.htmlContent, answers),
+                srcDoc: userCode,
                 title: "Your Output",
-                style: { width: "100%", height: "100%", border: "none", borderRadius: "4px" },
+                style: { width: "100%", height: "200px", border: "none", borderRadius: "4px" },
                 sandbox: "allow-same-origin"
               }
             ) })
-          ] }) }),
-          fullscreenCard === "expected" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fullscreen-card", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-close", onClick: () => setFullscreenCard(null), children: "✕ Close" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fullscreen-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-box", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-header", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Expected Output" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-btn", onClick: () => setFullscreenCard("expected"), title: "Fullscreen", children: "⛶" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "iframe",
               {
                 srcDoc: generateHtmlOutput(question.htmlContent, {}),
                 title: "Expected Output",
-                style: { width: "100%", height: "100%", border: "none", borderRadius: "4px" },
+                style: { width: "100%", height: "200px", border: "none", borderRadius: "4px" },
                 sandbox: "allow-same-origin"
               }
             ) })
-          ] }) }),
-          !fullscreenCard && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-comparison", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-box", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-header", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Your Output" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-btn", onClick: () => setFullscreenCard("your"), title: "Fullscreen", children: "⛶" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "iframe",
-                {
-                  srcDoc: generateHtmlOutput(question.htmlContent, answers),
-                  title: "Your Output",
-                  style: { width: "100%", height: "200px", border: "none", borderRadius: "4px" },
-                  sandbox: "allow-same-origin"
-                }
-              ) })
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Instructions" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+            "Please type the complete HTML code above, then click ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Check" }),
+            " or ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Submit" }),
+            "."
+          ] })
+        ] })
+      ] }),
+      submitted && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-box", children: [
+        score === 100 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "completion-banner success", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "banner-icon", children: "🎉" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "banner-content", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Perfect Score! Task Completed!" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Congratulations! You got all answers correct. Excellent work!" })
+          ] })
+        ] }) : score >= 80 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "completion-banner passed", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "banner-icon", children: "✅" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "banner-content", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Task Completed Successfully!" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Great job! You passed with a good score. Review the explanations below to learn more." })
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "completion-banner failed", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "banner-icon", children: "📝" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "banner-content", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Task Incomplete - Try Again" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "You need at least 80% to complete this task. Review the explanations and try again!" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-header", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "📊 Quiz Results" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-display", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+              "Correct Answers: ",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                Math.round(score / 100 * question.blanks.length),
+                " / ",
+                question.blanks.length
+              ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-box", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-header", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Expected Output" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "fullscreen-btn", onClick: () => setFullscreenCard("expected"), title: "Fullscreen", children: "⛶" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "iframe",
-                {
-                  srcDoc: generateHtmlOutput(question.htmlContent, {}),
-                  title: "Expected Output",
-                  style: { width: "100%", height: "200px", border: "none", borderRadius: "4px" },
-                  sandbox: "allow-same-origin"
-                }
-              ) })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+              "Score: ",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: score === 100 ? "perfect-score" : score >= 80 ? "good-score" : "needs-improvement", children: [
+                Math.round(score),
+                "%"
+              ] })
             ] })
           ] })
         ] }),
-        submitted && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-box", children: [
-          score === 100 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "completion-banner success", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "banner-icon", children: "🎉" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "banner-content", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Perfect Score! Task Completed!" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Congratulations! You got all answers correct. Excellent work!" })
-            ] })
-          ] }) : score >= 80 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "completion-banner passed", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "banner-icon", children: "✅" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "banner-content", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Task Completed Successfully!" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Great job! You passed with a good score. Review the explanations below to learn more." })
-            ] })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "completion-banner failed", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "banner-icon", children: "📝" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "banner-content", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Task Incomplete - Try Again" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "You need at least 80% to complete this task. Review the explanations and try again!" })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-header", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "📊 Quiz Results" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-display", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                "Correct Answers: ",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                  Math.round(score / 100 * question.blanks.length),
-                  " / ",
-                  question.blanks.length
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                "Score: ",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: score === 100 ? "perfect-score" : score >= 80 ? "good-score" : "needs-improvement", children: [
-                  Math.round(score),
-                  "%"
-                ] })
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-panels", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "📚 Detailed Explanations" }),
-            question.blanks.map((blank, index) => {
-              const userAnswer = answers[blank.id]?.toLowerCase().trim();
-              const correctAnswer = blank.correctAnswer.toLowerCase().trim();
-              const isCorrect = userAnswer === correctAnswer;
-              const isExpanded = expandedExplanations.has(blank.id);
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-panel", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    className: `explanation-header ${isCorrect ? "correct" : "incorrect"}`,
-                    onClick: () => toggleExplanation(blank.id),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "explanation-toggle", children: isExpanded ? "▼" : "▶" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "explanation-title", children: [
-                        isCorrect ? "✅" : "❌",
-                        " ",
-                        blank.id,
-                        " (Question ",
-                        index + 1,
-                        ")"
-                      ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "explanation-answer", children: isCorrect ? "Correct!" : "Incorrect" })
-                    ]
-                  }
-                ),
-                isExpanded && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-content", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "answer-comparison", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "your-answer", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Your Answer:" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: isCorrect ? "correct-text" : "incorrect-text", children: [
-                        '"',
-                        userAnswer || "(blank)",
-                        '"'
-                      ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-panels", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "📚 Detailed Explanations" }),
+          question.blanks.map((blank, index) => {
+            const userAnswer = getUserAnswerForBlank(blank).toLowerCase().trim();
+            const correctAnswer = blank.correctAnswer.toLowerCase().trim();
+            const isCorrect = userAnswer === correctAnswer;
+            const isExpanded = expandedExplanations.has(blank.id);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-panel", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  className: `explanation-header ${isCorrect ? "correct" : "incorrect"}`,
+                  onClick: () => toggleExplanation(blank.id),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "explanation-toggle", children: isExpanded ? "▼" : "▶" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "explanation-title", children: [
+                      isCorrect ? "✅" : "❌",
+                      " ",
+                      blank.id,
+                      " (Question ",
+                      index + 1,
+                      ")"
                     ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "correct-answer", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Correct Answer:" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "correct-text", children: [
-                        '"',
-                        correctAnswer,
-                        '"'
-                      ] })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "explanation-answer", children: isCorrect ? "Correct!" : "Incorrect" })
+                  ]
+                }
+              ),
+              isExpanded && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-content", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "answer-comparison", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "your-answer", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Your Answer:" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: isCorrect ? "correct-text" : "incorrect-text", children: [
+                      '"',
+                      userAnswer || "(blank)",
+                      '"'
                     ] })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-text", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Why:" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: blank.explanation || getDefaultExplanation(blank.id, correctAnswer) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "learning-tip", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "💡 Learning Tip:" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: getLearnignTip(blank.id, correctAnswer) })
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "correct-answer", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Correct Answer:" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "correct-text", children: [
+                      '"',
+                      correctAnswer,
+                      '"'
+                    ] })
                   ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "explanation-text", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Why:" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: blank.explanation || getDefaultExplanation(blank.id, correctAnswer) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "learning-tip", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "💡 Learning Tip:" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: getLearnignTip(blank.id, correctAnswer) })
                 ] })
-              ] }, blank.id);
-            })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-actions", children: score >= 80 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "next-question-btn", onClick: onBack, children: "✓ Task Finished - View All Questions" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "try-again-btn secondary", onClick: handleTryAgain, children: "Practice Again" })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "try-again-btn primary", onClick: handleTryAgain, children: "🔄 Try Again to Complete Task" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "back-to-questions-btn", onClick: onBack, children: "Back to Questions" })
-          ] }) })
+              ] })
+            ] }, blank.id);
+          })
         ] }),
-        !submitted && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "button-group", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "check-btn", onClick: handleCheck, disabled: checked, children: checked ? "✓ Checked" : "Check" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "submit-btn", onClick: handleSubmit, children: "Submit" })
-        ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-actions", children: score >= 80 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "next-question-btn", onClick: onBack, children: "✓ Task Finished - View All Questions" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "try-again-btn secondary", onClick: handleTryAgain, children: "Practice Again" })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "try-again-btn primary", onClick: handleTryAgain, children: "🔄 Try Again to Complete Task" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "back-to-questions-btn", onClick: onBack, children: "Back to Questions" })
+        ] }) })
       ] })
     ] }) })
   ] });
@@ -21183,7 +21025,15 @@ worker.onmessage = function(event) {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "study-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "HTML Code to Complete" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "study-code", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: selectedTask.htmlContent }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              className: "study-code",
+              value: selectedTask.htmlContent,
+              readOnly: true,
+              rows: 12
+            }
+          )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lesson-navigation", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(

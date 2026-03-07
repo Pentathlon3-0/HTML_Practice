@@ -1835,8 +1835,19 @@ a.button:focus {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
   position: relative;
+  /* base: full available width, centered */
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
+/* desktop layout: make preview card occupy 70% of viewport width */
+@media (min-width: 1024px) {
+  .html-preview {
+    width: 70vw; /* 70% of viewport width */
+    max-width: none; /* allow expand beyond 900 */
+  }
+}
 .html-preview h2,
 .blanks-section h2 {
   margin-top: 0;
@@ -1853,6 +1864,19 @@ a.button:focus {
   border-radius: 10px;
   padding: 18px;
   overflow-x: auto;
+  /* make textarea fill container */
+  width: 100%;
+}
+
+/* textarea inside preview should span full width and not resize horizontally */
+.code-display .code-editor {
+  width: 100%;
+  height: 300px; /* or auto/adjust as needed */
+  background: #fff;
+  color: #000;
+  border: none;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
 .code-display pre {
@@ -2014,7 +2038,8 @@ a.button:focus {
 }
 
 .check-btn {
-  padding: 14px 28px;
+  padding: 8px 16px;
+  width: 100px;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -2045,6 +2070,23 @@ a.button:focus {
   transition: left 0.5s ease;
 }
 
+.clear-btn {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.2);
+}
+
 .check-btn:hover {
   transform: translateY(-3px);
   border-color: #60a5fa;
@@ -2061,7 +2103,8 @@ a.button:focus {
 }
 
 .submit-btn {
-  padding: 14px 28px;
+  padding: 8px 16px;
+  width: 140px;
   background: linear-gradient(135deg, rgba(52, 211, 153, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -3610,9 +3653,9 @@ a.button:focus {
 .fullscreen-card {
   background: #0f172a;
   border-radius: 16px;
-  width: 100%;
-  max-width: 1200px;
-  height: 90vh;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -3834,6 +3877,7 @@ a.button:focus {
     gap: 8px;
   }
 
+  .clear-btn,
   .check-btn,
   .submit-btn,
   .next-btn {

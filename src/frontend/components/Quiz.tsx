@@ -121,148 +121,10 @@ const getLearnignTip = (blankId: string, answer: string): string => {
     'Pay attention to when and why you use this tag. Proper semantic HTML makes your code more accessible and maintainable.';
 };
 
-/**
- * Get progressive hints for a tag
- */
-const getHintsForTag = (tagName: string): string[] => {
-  const hints: { [key: string]: string[] } = {
-    'html': [
-      '💡 It\'s the root element',
-      '💡 It\'s a container tag - you need an opening and closing tag',
-      '💡 Every HTML document starts with <html>'
-    ],
-    'head': [
-      '💡 It comes before the <body> tag',
-      '💡 It\'s where metadata goes (not visible content)',
-      '💡 It\'s required in HTML documents'
-    ],
-    'body': [
-      '💡 This is where all visible content goes',
-      '💡 It comes after the <head> tag',
-      '💡 There\'s only one <body> per page'
-    ],
-    'DOCTYPE': [
-      '💡 It\'s a declaration, not a tag',
-      '💡 It tells the browser this is HTML5',
-      '💡 It must be the very first line of your document'
-    ],
-    'h1': [
-      '💡 It\'s a heading tag',
-      '💡 It\'s the largest heading level',
-      '💡 Use it for the main page title'
-    ],
-    'h2': [
-      '💡 It\'s a heading tag, but smaller than h1',
-      '💡 Use this for main sections',
-      '💡 There can be multiple h2s on one page'
-    ],
-    'p': [
-      '💡 It stands for "paragraph"',
-      '💡 It\'s a block-level element (creates line breaks)',
-      '💡 Use this for text content'
-    ],
-    'strong': [
-      '💡 It emphasizes text as important',
-      '💡 It displays in bold',
-      '💡 It\'s semantic (unlike <b>)'
-    ],
-    'em': [
-      '💡 It stands for "emphasis"',
-      '💡 It displays in italic',
-      '💡 It\'s semantic (unlike <i>)'
-    ],
-    'a': [
-      '💡 It\'s for creating links',
-      '💡 You need an href attribute',
-      '💡 href stands for "hypertext reference"'
-    ],
-    'img': [
-      '💡 It\'s for embedding images',
-      '💡 It\'s a self-closing tag (no </img>)',
-      '💡 You need src and alt attributes'
-    ],
-    'div': [
-      '💡 It\'s a generic container',
-      '💡 It\'s a block-level element',
-      '💡 It\'s often used for layout and styling'
-    ],
-    'span': [
-      '💡 It\'s a generic inline container',
-      '💡 It doesn\'t create line breaks',
-      '💡 Use it for styling small portions of text'
-    ],
-    'ul': [
-      '💡 It stands for "unordered list"',
-      '💡 It creates a bulleted list',
-      '💡 It contains <li> elements'
-    ],
-    'ol': [
-      '💡 It stands for "ordered list"',
-      '💡 It creates a numbered list',
-      '💡 It contains <li> elements'
-    ],
-    'li': [
-      '💡 It stands for "list item"',
-      '💡 It\'s used inside <ul> or <ol>',
-      '💡 The browser automatically numbers them in <ol>'
-    ],
-    'form': [
-      '💡 It\'s a container for form elements',
-      '💡 It needs action and method attributes',
-      '💡 It groups inputs together for submission'
-    ],
-    'input': [
-      '💡 It\'s for user input',
-      '💡 It\'s a self-closing tag',
-      '💡 The type attribute changes what kind of input it is'
-    ],
-    'button': [
-      '💡 It creates a clickable button',
-      '💡 By default, it submits forms',
-      '💡 Use type="button" to prevent submission'
-    ],
-    'table': [
-      '💡 It\'s for displaying data in rows and columns',
-      '💡 It contains <tr>, <td>, and <th> elements',
-      '💡 Don\'t use it for layout - use CSS Grid instead'
-    ],
-    'header': [
-      '💡 It\'s a semantic tag for header content',
-      '💡 It doesn\'t style itself automatically',
-      '💡 It improves accessibility and SEO'
-    ],
-    'footer': [
-      '💡 It\'s a semantic tag for footer content',
-      '💡 It\'s usually at the bottom of the page',
-      '💡 It improves document structure'
-    ],
-    'nav': [
-      '💡 It\'s for navigation links',
-      '💡 It\'s semantic and improves accessibility',
-      '💡 Use it only for major navigation'
-    ],
-    'article': [
-      '💡 It\'s for self-contained content',
-      '💡 It\'s semantic and improves SEO',
-      '💡 Use it for blog posts, news articles, etc.'
-    ],
-    'section': [
-      '💡 It groups related content together',
-      '💡 It\'s semantic and improves structure',
-      '💡 Each section typically has a heading'
-    ],
-  };
-
-  return hints[tagName.toLowerCase()] || [
-    '💡 Think about the purpose of this tag',
-    '💡 Consider where it\'s typically used',
-    '💡 Check the HTML reference for more info'
-  ];
-};
-
 export const Quiz = ({ questionId, onBack }: QuizProps) => {
   const { user, logout } = useAuth();
-  const [answers, setAnswers] = useState<{ [key: string]: string }>({});
+  // store full HTML including blank markers; user types over blanks manually
+  const [userCode, setUserCode] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(1800);
   const [submitted, setSubmitted] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -273,7 +135,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
   const [fullscreenCard, setFullscreenCard] = useState<'your' | 'expected' | null>(null);
   const [fromTaskPreview] = useState(() => sessionStorage.getItem('studyAreaFromTaskPreview') === 'true');
   const [expandedExplanations, setExpandedExplanations] = useState<Set<string>>(new Set());
-  const [shownHints, setShownHints] = useState<{ [blankId: string]: number }>({});
+  // hint state removed per request
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -293,49 +155,45 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     });
   };
 
-  /**
-   * Show next hint for a blank
-   */
-  const showNextHint = (blankId: string) => {
-    setShownHints(prev => ({
-      ...prev,
-      [blankId]: (prev[blankId] || 0) + 1
-    }));
-  };
+  // hint functionality has been removed; users now type entire code manually
 
-  const handleAnswerChange = (blankId: string, value: string) => {
-    setAnswers(prev => ({
-      ...prev,
-      [blankId]: value
-    }));
-    // Reset checked state when user modifies an answer
+  const handleCodeChange = (value: string) => {
+    setUserCode(value);
     if (checked) {
       setChecked(false);
     }
   };
 
+  const handleClear = () => {
+    // reset editor to fresh skeleton
+    setUserCode('<!DOCTYPE html>\n<html>\n</html>');
+    setChecked(false);
+    setSubmitted(false);
+    setScore(0);
+  };
+
   const handleCheck = () => {
     setChecked(true);
   };
-
   const handleSubmit = async () => {
     if (!question) return;
-    
+
+    // determine correctness for each blank by extracting what the user typed in that location
     let correctCount = 0;
     question.blanks.forEach(blank => {
-      const userAnswer = answers[blank.id]?.toLowerCase().trim();
+      const userAnswer = getUserAnswerForBlank(blank).toLowerCase().trim();
       const correctAnswer = blank.correctAnswer.toLowerCase().trim();
       if (userAnswer === correctAnswer) {
         correctCount++;
       }
     });
-    
+
     const percentage = Math.round((correctCount / question.blanks.length) * 100);
     const isCorrect = correctCount === question.blanks.length;
-    
+
     setScore(percentage);
     setSubmitted(true);
-    
+
     // Save to user_progress table
     if (user?.id && user?.email) {
       await BackendAPI.quiz.saveProgress(
@@ -357,7 +215,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     if (!question || !user?.id) return;
 
     // Reset all states to start fresh
-    setAnswers({});
+    setUserCode('<!DOCTYPE html>\n<html>\n</html>');
     setSubmitted(false);
     setChecked(false);
     setScore(0);
@@ -396,6 +254,25 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     return output;
   };
 
+  // extract what user typed for a specific blank by looking at where placeholder was
+  const getUserAnswerForBlank = (blank: Blank): string => {
+    if (!question) return '';
+    const placeholder = `__${blank.id}__`;
+    const idx = question.htmlContent.indexOf(placeholder);
+    if (idx === -1) return '';
+    const prefix = question.htmlContent.slice(0, idx);
+    const suffix = question.htmlContent.slice(idx + placeholder.length);
+    // find prefix position in userCode
+    const start = userCode.indexOf(prefix);
+    if (start === -1) return '';
+    const afterPrefix = start + prefix.length;
+    const end = userCode.indexOf(suffix, afterPrefix);
+    if (end === -1) {
+      return userCode.slice(afterPrefix).trim();
+    }
+    return userCode.slice(afterPrefix, end).trim();
+  };
+
   // Load question from database
   useEffect(() => {
     const loadQuestion = async () => {
@@ -403,6 +280,11 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
       const questionData = await BackendAPI.questions.getById(questionId);
       setQuestion(questionData);
       
+      // initialize editor with minimal skeleton; user types everything manually
+      if (questionData) {
+        setUserCode('<!DOCTYPE html>\n<html>\n</html>');
+      }
+
       // Check if question is already completed correctly
       if (user?.id && questionData) {
         const { data, error } = await BackendAPI.supabase
@@ -416,12 +298,8 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
           const status = data[statusKey];
           
           if (status === 'correct') {
-            // Pre-fill all blanks with correct answers
-            const prefilledAnswers: { [key: string]: string } = {};
-            questionData.blanks.forEach(blank => {
-              prefilledAnswers[blank.id] = blank.correctAnswer;
-            });
-            setAnswers(prefilledAnswers);
+            // fill entire code with expected output so textarea shows correct version
+            setUserCode(generateHtmlOutput(questionData.htmlContent, {}));
             setIsAlreadyCompleted(true);
             setSubmitted(true);
             setScore(100);
@@ -472,8 +350,6 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     return <div style={{ padding: '20px', textAlign: 'center', color: '#d32f2f' }}>Question not found</div>;
   }
 
-  const displayContent = question.htmlContent
-    .replace(/__BLANK_\d+__/g, '<span class="blank-placeholder">_____</span>');
 
   return (
     <div className="quiz-container">
@@ -496,9 +372,24 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
       <div className="quiz-content">
         <div className="quiz-center">
           <div className="html-preview">
-            <h2>HTML Preview</h2>
+            <h2>HTML Editor / Preview</h2>
             <div className="code-display">
-              <pre>{displayContent}</pre>
+              <textarea
+                className="code-editor"
+                value={userCode}
+                onChange={(e) => handleCodeChange(e.target.value)}
+                placeholder="Type the complete HTML here, replacing the __BLANK_x__ placeholders with your answers"
+                disabled={submitted}
+                rows={15}
+              />
+              {/* blank hints removed; user types entire HTML directly */}
+            </div>
+            <div className="button-group">
+              <button className="clear-btn" onClick={handleClear}>Clear</button>
+              <button className="check-btn" onClick={handleCheck} disabled={checked}>
+                {checked ? '✓ Checked' : 'Check'}
+              </button>
+              <button className="submit-btn" onClick={handleSubmit}>Submit</button>
             </div>
             <button className="back-button" onClick={() => {
               sessionStorage.removeItem('studyAreaFromTaskPreview');
@@ -507,138 +398,77 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
           </div>
 
           <div className="blanks-section">
-            <h2>Fill in the Blanks</h2>
-            <div className="blanks-container">
-              {question.blanks.map((blank, index) => {
-                const userAnswer = answers[blank.id]?.toLowerCase().trim();
-                const correctAnswer = blank.correctAnswer.toLowerCase().trim();
-                const isCorrect = userAnswer === correctAnswer;
-                const showFeedback = checked || submitted; // Show feedback on check or submit
-
-                return (
-                  <div key={blank.id} className="blank-input-group">
-                    <div className="blank-label-row">
-                      <label htmlFor={blank.id}>{blank.id} ({index + 1} pts)</label>
-                      {!submitted && !isAlreadyCompleted && (
-                        <button 
-                          className="hint-btn"
-                          onClick={() => showNextHint(blank.id)}
-                          title="Get a hint"
-                        >
-                          💡 Hint
-                        </button>
-                      )}
-                    </div>
-
-                    {shownHints[blank.id] ? shownHints[blank.id] > 0 && (
-                      <div className="hints-container">
-                        {getHintsForTag(blank.correctAnswer).slice(0, shownHints[blank.id]).map((hint, hintIndex) => (
-                          <div key={hintIndex} className="hint-item">
-                            {hint}
-                          </div>
-                        ))}
-                        {shownHints[blank.id] < getHintsForTag(blank.correctAnswer).length && (
-                          <button 
-                            className="hint-btn-small"
-                            onClick={() => showNextHint(blank.id)}
-                          >
-                            Show More Hints
-                          </button>
-                        )}
-                      </div>
-                    ) : null}
-
-                    <input
-                      type="text"
-                      id={blank.id}
-                      value={answers[blank.id] || ''}
-                      onChange={(e) => handleAnswerChange(blank.id, e.target.value)}
-                      placeholder="Enter your answer"
-                      disabled={submitted}
-                      className={showFeedback && userAnswer ? (isCorrect ? 'correct' : 'incorrect') : ''}
+            {/* always render overlays if user requested fullscreen */}
+            {fullscreenCard === 'your' && (
+              <div className="fullscreen-overlay">
+                <div className="fullscreen-card">
+                  <button className="fullscreen-close" onClick={() => setFullscreenCard(null)}>✕ Close</button>
+                  <div className="fullscreen-content">
+                    <iframe
+                      srcDoc={userCode}
+                      title="Your Output"
+                      style={{ width: '100%', height: '100%', border: 'none', borderRadius: '4px' }}
+                      sandbox="allow-same-origin"
                     />
-                    {isAlreadyCompleted && (
-                      <p className="success-answer">✓ Correct!</p>
-                    )}
-                    {showFeedback && !isAlreadyCompleted && isCorrect && (
-                      <p className="success-answer">✓ Correct!</p>
-                    )}
-                    {showFeedback && !isAlreadyCompleted && !userAnswer && (
-                      <p className="empty-answer">Required</p>
-                    )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            )}
 
-            {checked && !submitted && (
+            {fullscreenCard === 'expected' && (
+              <div className="fullscreen-overlay">
+                <div className="fullscreen-card">
+                  <button className="fullscreen-close" onClick={() => setFullscreenCard(null)}>✕ Close</button>
+                  <div className="fullscreen-content">
+                    <iframe
+                      srcDoc={generateHtmlOutput(question.htmlContent, {})}
+                      title="Expected Output"
+                      style={{ width: '100%', height: '100%', border: 'none', borderRadius: '4px' }}
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {checked && !submitted ? (
+              <div className="output-comparison">
+                <div className="output-box">
+                  <div className="output-header">
+                    <h3>Your Output</h3>
+                    <button className="fullscreen-btn" onClick={() => setFullscreenCard('your')} title="Fullscreen">⛶</button>
+                  </div>
+                  <div className="output-content">
+                    <iframe
+                      srcDoc={userCode}
+                      title="Your Output"
+                      style={{ width: '100%', height: '200px', border: 'none', borderRadius: '4px' }}
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
+                </div>
+                <div className="output-box">
+                  <div className="output-header">
+                    <h3>Expected Output</h3>
+                    <button className="fullscreen-btn" onClick={() => setFullscreenCard('expected')} title="Fullscreen">⛶</button>
+                  </div>
+                  <div className="output-content">
+                    <iframe
+                      srcDoc={generateHtmlOutput(question.htmlContent, {})}
+                      title="Expected Output"
+                      style={{ width: '100%', height: '200px', border: 'none', borderRadius: '4px' }}
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
               <>
-                {fullscreenCard === 'your' && (
-                  <div className="fullscreen-overlay">
-                    <div className="fullscreen-card">
-                      <button className="fullscreen-close" onClick={() => setFullscreenCard(null)}>✕ Close</button>
-                      <div className="fullscreen-content">
-                        <iframe
-                          srcDoc={generateHtmlOutput(question.htmlContent, answers)}
-                          title="Your Output"
-                          style={{ width: '100%', height: '100%', border: 'none', borderRadius: '4px' }}
-                          sandbox="allow-same-origin"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {fullscreenCard === 'expected' && (
-                  <div className="fullscreen-overlay">
-                    <div className="fullscreen-card">
-                      <button className="fullscreen-close" onClick={() => setFullscreenCard(null)}>✕ Close</button>
-                      <div className="fullscreen-content">
-                        <iframe
-                          srcDoc={generateHtmlOutput(question.htmlContent, {})}
-                          title="Expected Output"
-                          style={{ width: '100%', height: '100%', border: 'none', borderRadius: '4px' }}
-                          sandbox="allow-same-origin"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {!fullscreenCard && (
-                  <div className="output-comparison">
-                    <div className="output-box">
-                      <div className="output-header">
-                        <h3>Your Output</h3>
-                        <button className="fullscreen-btn" onClick={() => setFullscreenCard('your')} title="Fullscreen">⛶</button>
-                      </div>
-                      <div className="output-content">
-                        <iframe
-                          srcDoc={generateHtmlOutput(question.htmlContent, answers)}
-                          title="Your Output"
-                          style={{ width: '100%', height: '200px', border: 'none', borderRadius: '4px' }}
-                          sandbox="allow-same-origin"
-                        />
-                      </div>
-                    </div>
-                    <div className="output-box">
-                      <div className="output-header">
-                        <h3>Expected Output</h3>
-                        <button className="fullscreen-btn" onClick={() => setFullscreenCard('expected')} title="Fullscreen">⛶</button>
-                      </div>
-                      <div className="output-content">
-                        <iframe
-                          srcDoc={generateHtmlOutput(question.htmlContent, {})}
-                          title="Expected Output"
-                          style={{ width: '100%', height: '200px', border: 'none', borderRadius: '4px' }}
-                          sandbox="allow-same-origin"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <h2>Instructions</h2>
+                <p>Please type the complete HTML code above, then click <strong>Check</strong> or <strong>Submit</strong>.</p>
               </>
             )}
+          </div>
 
             {submitted && (
               <div className="result-box">
@@ -680,7 +510,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
                 <div className="explanation-panels">
                   <h4>📚 Detailed Explanations</h4>
                   {question.blanks.map((blank, index) => {
-                    const userAnswer = answers[blank.id]?.toLowerCase().trim();
+                    const userAnswer = getUserAnswerForBlank(blank).toLowerCase().trim();
                     const correctAnswer = blank.correctAnswer.toLowerCase().trim();
                     const isCorrect = userAnswer === correctAnswer;
                     const isExpanded = expandedExplanations.has(blank.id);
@@ -760,17 +590,9 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
               </div>
             )}
 
-            {!submitted && (
-              <div className="button-group">
-                <button className="check-btn" onClick={handleCheck} disabled={checked}>
-                  {checked ? '✓ Checked' : 'Check'}
-                </button>
-                <button className="submit-btn" onClick={handleSubmit}>Submit</button>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
+    
   );
 };
