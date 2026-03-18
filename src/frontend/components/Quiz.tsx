@@ -1,4 +1,27 @@
 import React, { useState, useEffect } from 'react';
+
+// Modal component for entering school name
+const Modal = ({ isOpen, onClose, onSubmit, schoolName, setSchoolName }: { isOpen: boolean, onClose: () => void, onSubmit: () => void, schoolName: string, setSchoolName: (v: string) => void }) => {
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#23272e', padding: 32, borderRadius: 12, minWidth: 340, boxShadow: '0 4px 24px #0008', color: '#fff', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <h2 style={{ margin: 0 }}>Enter School Name</h2>
+        <input
+          type="text"
+          value={schoolName}
+          onChange={e => setSchoolName(e.target.value)}
+          placeholder="School Name"
+          style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #444', background: '#1e1e1e', color: '#fff', fontSize: 16 }}
+        />
+        <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+          <button onClick={onSubmit} style={{ background: 'linear-gradient(90deg,#6a8dff,#7fbcff)', color: '#fff', fontWeight: 600, border: 'none', borderRadius: 6, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Submit</button>
+          <button onClick={onClose} style={{ background: '#444', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+};
 import { useAuth } from '../context/AuthContext';
 import { BackendAPI } from '../../backend/api';
 import type { QuestionData } from '../../backend/types';
@@ -121,12 +144,10 @@ const getLearnignTip = (blankId: string, answer: string): string => {
     'Pay attention to when and why you use this tag. Proper semantic HTML makes your code more accessible and maintainable.';
 };
 
+
 export const Quiz = ({ questionId, onBack }: QuizProps) => {
   const { user, logout } = useAuth();
-  // store full HTML including blank markers; user types over blanks manually
-  const [userCode, setUserCode] = useState('');
-  // populate output when question loads
-
+  const [blankValues, setBlankValues] = useState<{ [key: string]: string }>({});
   const [timeRemaining, setTimeRemaining] = useState(1800);
   const [submitted, setSubmitted] = useState(false);
   const [checked, setChecked] = useState(true); // show comparison immediately on load
@@ -136,8 +157,47 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
   const [isAlreadyCompleted, setIsAlreadyCompleted] = useState(false);
   const [fromTaskPreview] = useState(() => sessionStorage.getItem('studyAreaFromTaskPreview') === 'true');
   const [expandedExplanations, setExpandedExplanations] = useState<Set<string>>(new Set());
-  // hint state removed per request
-  // fullscreen state removed earlier
+
+  // Modal state for Solve Task
+  const [showModal, setShowModal] = useState(false);
+  const [schoolName, setSchoolName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Save pentathlon_quiz record (after modal submit)
+  const handleSolveTask = async () => {
+    setSaving(true);
+    setSaveError(null);
+    if (!schoolName) {
+      setSaveError('Please enter your school name.');
+      setSaving(false);
+      return;
+    }
+    try {
+      if (!user?.email || !question) {
+        setSaveError('Missing required information.');
+        setSaving(false);
+        return;
+      }
+      // Save to pentathlon_quiz table
+      const { error } = await BackendAPI.supabase.from('pentathlon_quiz').insert({
+        school_name: schoolName,
+        user_email: user.email,
+        score: score,
+        question_id: question.id
+      });
+      if (error) {
+        setSaveError(error.message);
+      } else {
+        setShowModal(false);
+        setSchoolName('');
+        alert('Task solved and saved!');
+      }
+    } catch (e: any) {
+      setSaveError(e?.message || 'Unknown error');
+    }
+    setSaving(false);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -157,38 +217,49 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     });
   };
 
-  // hint functionality has been removed; users now type entire code manually
 
-  const handleCodeChange = (value: string) => {
-    setUserCode(value);
-    if (checked) {
+  // For input blanks UI
+  // If autoCheck is true, every change triggers setChecked(true)
+  const [autoCheck, setAutoCheck] = useState(false);
+  const handleBlankChange = (blankId: string, value: string) => {
+    if (!submitted) setBlankValues((prev) => ({ ...prev, [blankId]: value }));
+    if (autoCheck) {
+      setChecked(true);
+    } else if (checked) {
       setChecked(false);
     }
   };
 
   const handleClear = () => {
-    // reset editor to fresh skeleton
-    setUserCode('<!DOCTYPE html>\n<html>\n</html>');
+    setBlankValues({});
     setChecked(false);
     setSubmitted(false);
     setScore(0);
+    setAutoCheck(false);
   };
+
 
   const handleCheck = () => {
     setChecked(true);
+    setAutoCheck(true);
   };
+
+  // Track per-blank correctness for result display
+  const [blankCorrectCount, setBlankCorrectCount] = useState(0);
+  const [blankTotalCount, setBlankTotalCount] = useState(0);
+  const [blankScore, setBlankScore] = useState(0);
   const handleSubmit = async () => {
     if (!question) return;
-
-    // compare entire userCode against expected complete HTML
+    // Build user HTML from blank values
+    let userHtml = question.htmlContent;
+    question.blanks.forEach(blank => {
+      userHtml = userHtml.replace(new RegExp(`__${blank.id}__`, 'g'), blankValues[blank.id] || '');
+    });
     const expected = generateHtmlOutput(question.htmlContent, {});
-
     // normalize whitespace for fair comparison
     const normalize = (str: string) => str.replace(/\s+/g, ' ').trim();
-    const u = normalize(userCode);
+    const u = normalize(userHtml);
     const e = normalize(expected);
-
-    // count matching characters up to the longer length
     let equal = 0;
     const maxLen = Math.max(u.length, e.length);
     for (let i = 0; i < Math.min(u.length, e.length); i++) {
@@ -196,10 +267,20 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     }
     const percentage = maxLen === 0 ? 100 : Math.round((equal / maxLen) * 100);
     const isCorrect = percentage >= 80;
-
+    // Per-blank correctness
+    let correctBlanks = 0;
+    question.blanks.forEach(blank => {
+      const userVal = (blankValues[blank.id] || '').trim();
+      const correctVal = (blank.correctAnswer || '').trim();
+      if (userVal === correctVal) correctBlanks++;
+    });
+    const totalBlanks = question.blanks.length;
+    setBlankCorrectCount(correctBlanks);
+    setBlankTotalCount(totalBlanks);
+    setBlankScore(totalBlanks > 0 ? Math.round((100 / totalBlanks) * correctBlanks) : 100);
     setScore(percentage);
     setSubmitted(true);
-
+    setAutoCheck(false);
     // Save to user_progress table
     if (user?.id && user?.email) {
       await BackendAPI.quiz.saveProgress(
@@ -210,7 +291,6 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
       );
       console.log('✓ Progress saved to user_progress table');
     }
-
     // Mark as solved if score >= 80%
     if (isCorrect && user?.id) {
       BackendAPI.storage.markSolved(user.id, question.id);
@@ -219,16 +299,13 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
 
   const handleTryAgain = async () => {
     if (!question || !user?.id) return;
-
-    // Reset all states to start fresh
-    setUserCode('<!DOCTYPE html>\n<html>\n</html>');
+    setBlankValues({});
     setSubmitted(false);
     setChecked(false);
     setScore(0);
     setIsAlreadyCompleted(false);
     setTimeRemaining(1800);
-
-    // Reset question status to NULL in user_progress
+    setAutoCheck(false);
     try {
       const { error } = await BackendAPI.supabase
         .from('user_progress')
@@ -236,7 +313,6 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
           [`question_${question.id}_status`]: null
         })
         .eq('user_id', user.id);
-
       if (error) {
         console.error('Error resetting progress:', error.message);
       } else {
@@ -264,23 +340,9 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
     return style + output;
   };
 
-  // extract what user typed for a specific blank by looking at where placeholder was
+  // extract what user typed for a specific blank
   const getUserAnswerForBlank = (blank: Blank): string => {
-    if (!question) return '';
-    const placeholder = `__${blank.id}__`;
-    const idx = question.htmlContent.indexOf(placeholder);
-    if (idx === -1) return '';
-    const prefix = question.htmlContent.slice(0, idx);
-    const suffix = question.htmlContent.slice(idx + placeholder.length);
-    // find prefix position in userCode
-    const start = userCode.indexOf(prefix);
-    if (start === -1) return '';
-    const afterPrefix = start + prefix.length;
-    const end = userCode.indexOf(suffix, afterPrefix);
-    if (end === -1) {
-      return userCode.slice(afterPrefix).trim();
-    }
-    return userCode.slice(afterPrefix, end).trim();
+    return blankValues[blank.id] || '';
   };
 
   // Load question from database
@@ -292,7 +354,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
       
       // initialize editor with minimal skeleton; user types everything manually
       if (questionData) {
-        setUserCode('<!DOCTYPE html>\n<html>\n</html>');
+        // setUserCode removed: now using blankValues for all input
         setChecked(true);            // display comparison panels by default
         handleCheck();              // run check logic to populate output frames
       }
@@ -311,7 +373,7 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
           
           if (status === 'correct') {
             // fill entire code with expected output so textarea shows correct version
-            setUserCode(generateHtmlOutput(questionData.htmlContent, {}));
+            // setUserCode removed: now using blankValues for all input
             setIsAlreadyCompleted(true);
             setSubmitted(true);
             setScore(100);
@@ -363,6 +425,52 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
   }
 
 
+
+  // Render input fields for all blanks in all questions
+  const renderHtmlWithInputs = () => {
+    if (!question) return null;
+    // Split by lines, then for each line, split by blanks and render
+    return question.htmlContent.split('\n').map((line, lineIdx) => {
+      const parts = line.split(/(__[A-Za-z0-9_]+__)/g);
+      return (
+        <div key={lineIdx} style={{ fontFamily: 'monospace', fontSize: 16, background: 'transparent', color: '#fff', padding: 0, borderRadius: 0, lineHeight: 1.5 }}>
+          {parts.map((part, idx) => {
+            const match = part.match(/^__([A-Za-z0-9_]+)__$/);
+            if (match) {
+              const blankId = match[1];
+              return (
+                <input
+                  key={blankId + idx}
+                  type="text"
+                  value={blankValues[blankId] || ''}
+                  onChange={e => handleBlankChange(blankId, e.target.value)}
+                  disabled={submitted}
+                  style={{
+                    width: 80,
+                    margin: '0 4px',
+                    display: 'inline-block',
+                    background: '#23272e',
+                    color: '#d4d4d4',
+                    border: '1px solid #444',
+                    borderRadius: 4,
+                    fontFamily: 'Fira Mono, Menlo, Monaco, Consolas, monospace',
+                    fontSize: 15,
+                    outline: 'none',
+                    boxShadow: 'none',
+                    padding: '2px 6px',
+                  }}
+                  placeholder={blankId.replace('BLANK_', 'Blank ')}
+                />
+              );
+            }
+            return <span key={idx}>{part}</span>;
+          })}
+        </div>
+      );
+    });
+  };
+
+  // Render for all questions: input fields for blanks
   return (
     <div className="quiz-container">
       <header className="quiz-header">
@@ -383,41 +491,49 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
       <div className="quiz-content">
         <div className="quiz-center">
           <div className="html-preview">
-            <h2>HTML Editor </h2>
-            <div className="code-display">
-              <textarea
-                className="code-editor"
-                value={userCode}
-                onChange={(e) => handleCodeChange(e.target.value)}
-                placeholder="Type the complete HTML here, replacing the __BLANK_x__ placeholders with your answers"
-                disabled={submitted}
-                rows={15}
-              />
-              {/* blank hints removed; user types entire HTML directly */}
+            <h2>HTML Editor (Blanks)</h2>
+            <div
+              className="code-display"
+              style={{
+                fontFamily: 'Fira Mono, Menlo, Monaco, Consolas, monospace',
+                fontSize: 15,
+                background: '#1e1e1e',
+                color: '#d4d4d4',
+                padding: '18px 20px',
+                borderRadius: 8,
+                border: '1px solid #333',
+                boxShadow: '0 2px 8px #0002',
+                marginBottom: 12,
+                overflowX: 'auto',
+                minHeight: 320,
+                maxHeight: 600,
+                lineHeight: 1.6,
+                whiteSpace: 'pre',
+              }}
+            >
+              {renderHtmlWithInputs()}
             </div>
-            <div className="button-group">
-              <button className="clear-btn" onClick={handleClear}>Clear</button>
-              <button className="check-btn" onClick={handleCheck} disabled={checked}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 12, marginBottom: 12 }}>
+              <button className="clear-btn" onClick={handleClear} style={{ minWidth: 90 }}>Clear</button>
+              <button className="check-btn" onClick={handleCheck} disabled={checked} style={{ minWidth: 90 }}>
                 {checked ? '✓ Checked' : 'Check'}
               </button>
-              <button className="submit-btn" onClick={handleSubmit}>Submit</button>
-              <button className="show-answer-btn secondary" onClick={() => {
-                if (question) {
-                  const expected = generateHtmlOutput(question.htmlContent, {});
-                  setUserCode(expected);
-                  setChecked(true);
-                  // do NOT mark as submitted or set score; this is just a preview
-                }
-              }}>Show Answer</button>
+              <button className="submit-btn" onClick={handleSubmit} disabled={submitted} style={{ minWidth: 90 }}>Submit</button>
+              <div style={{ flex: 1 }} />
+              <button
+                className="back-button"
+                style={{ minWidth: 180, marginLeft: 'auto', background: 'linear-gradient(90deg,#6a8dff,#7fbcff)', color: '#fff', fontWeight: 600, fontSize: 16, border: 'none', borderRadius: 8, padding: '10px 24px', boxShadow: '0 2px 8px #0001', cursor: 'pointer' }}
+                onClick={() => {
+                  sessionStorage.removeItem('studyAreaFromTaskPreview');
+                  onBack();
+                }}
+              >
+                ← Back to {fromTaskPreview ? 'Task Preview' : 'Questions'}
+              </button>
             </div>
-            <button className="back-button" onClick={() => {
-              sessionStorage.removeItem('studyAreaFromTaskPreview');
-              onBack();
-            }}>← Back to {fromTaskPreview ? 'Task Preview' : 'Questions'}</button>
           </div>
 
           <div className="blanks-section">
-
             {checked && !submitted ? (
               <div className="output-comparison">
                 <div className="output-box">
@@ -426,7 +542,15 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
                   </div>
                   <div className="output-content">
                     <iframe
-                      srcDoc={userCode}
+                      srcDoc={(() => {
+                        if (!question) return '';
+                        let html = question.htmlContent;
+                        question.blanks.forEach(blank => {
+                          html = html.replace(new RegExp(`__${blank.id}__`, 'g'), blankValues[blank.id] || '');
+                        });
+                        // inject style for white text
+                        return `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>` + html;
+                      })()}
                       title="Your Output"
                       style={{ width: '100%', height: '250px', border: 'none', borderRadius: '4px' }}
                       sandbox="allow-same-origin allow-scripts"
@@ -439,7 +563,16 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
                   </div>
                   <div className="output-content">
                     <iframe
-                      srcDoc={generateHtmlOutput(question.htmlContent, {})}
+                      srcDoc={(() => {
+                        if (!question) return '';
+                        // Build expected HTML by filling blanks with correct answers
+                        let html = question.htmlContent;
+                        question.blanks.forEach(blank => {
+                          html = html.replace(new RegExp(`__${blank.id}__`, 'g'), blank.correctAnswer);
+                        });
+                        // inject style for white text
+                        return `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>` + html;
+                      })()}
                       title="Expected Output"
                       style={{ width: '100%', height: '250px', border: 'none', borderRadius: '4px' }}
                       sandbox="allow-same-origin allow-scripts"
@@ -450,77 +583,91 @@ export const Quiz = ({ questionId, onBack }: QuizProps) => {
             ) : (
               <div className="instructions-box">
                 <h2>Instructions</h2>
-                <p>Please type the complete HTML code above, then click <strong>Check</strong> or <strong>Submit</strong>.</p>
+                <p>Fill in all blanks above, then click <strong>Check</strong> or <strong>Submit</strong>.</p>
               </div>
             )}
           </div>
 
-            {submitted && (
-              <div className="result-box">
-                {/* Completion Status Banner */}
-                {score === 100 ? (
-                  <div className="completion-banner success">
-                    <div className="banner-icon">🎉</div>
-                    <div className="banner-content">
-                      <h2>Perfect Score! Task Completed!</h2>
-                      <p>Congratulations! You got all answers correct. Excellent work!</p>
-                    </div>
-                  </div>
-                ) : score >= 80 ? (
-                  <div className="completion-banner passed">
-                    <div className="banner-icon">✅</div>
-                    <div className="banner-content">
-                      <h2>Task Completed Successfully!</h2>
-                      <p>Great job! You passed with a good score. Review the explanations below to learn more.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="completion-banner failed">
-                    <div className="banner-icon">📝</div>
-                    <div className="banner-content">
-                      <h2>Task Incomplete - Try Again</h2>
-                      <p>You need at least 80% to complete this task. Review the explanations and try again!</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="result-header">
-                  <h3>📊 Quiz Results</h3>
-                  <div className="score-display">
-                    <p>Similarity to expected code: <strong className={score === 100 ? 'perfect-score' : score >= 80 ? 'good-score' : 'needs-improvement'}>{Math.round(score)}%</strong></p>
+          {submitted && (
+            <div className="result-box">
+              {/* Completion Status Banner */}
+              {score === 100 ? (
+                <div className="completion-banner success">
+                  <div className="banner-icon">🎉</div>
+                  <div className="banner-content">
+                    <h2>Perfect Score! Task Completed!</h2>
+                    <p>Congratulations! You got all answers correct. Excellent work!</p>
                   </div>
                 </div>
+              ) : score >= 80 ? (
+                <div className="completion-banner passed">
+                  <div className="banner-icon">✅</div>
+                  <div className="banner-content">
+                    <h2>Task Completed Successfully!</h2>
+                    <p>Great job! You passed with a good score. Review the explanations below to learn more.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="completion-banner failed">
+                  <div className="banner-icon">📝</div>
+                  <div className="banner-content">
+                    <h2>Task Incomplete - Try Again</h2>
+                    <p>You need at least 80% to complete this task. Review the explanations and try again!</p>
+                  </div>
+                </div>
+              )}
 
-                {/* we no longer display per-blank explanations when using full-code comparison */}
-
-                {/* Action Buttons */}
-                <div className="result-actions">
-                  {score >= 80 ? (
-                    <>
-                      <button className="next-question-btn" onClick={onBack}>
-                        ✓ Task Finished - View All Questions
-                      </button>
-                      <button className="try-again-btn secondary" onClick={handleTryAgain}>
-                        Practice Again
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button className="try-again-btn primary" onClick={handleTryAgain}>
-                        🔄 Try Again to Complete Task
-                      </button>
-                      <button className="back-to-questions-btn" onClick={onBack}>
-                        Back to Questions
-                      </button>
-                    </>
-                  )}
+              <div className="result-header">
+                <h3>📊 Quiz Results</h3>
+                <div className="score-display">
+                  <p>Correct blanks: <strong>{blankCorrectCount} / {blankTotalCount}</strong></p>
+                  <p>Per-blank score: <strong>{blankScore}%</strong></p>
                 </div>
               </div>
-            )}
 
-          </div>
+              {/* we no longer display per-blank explanations when using full-code comparison */}
+
+              {/* Action Buttons */}
+              <div className="result-actions" style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                <button
+                  className="solve-task-btn"
+                  style={{
+                    background: 'linear-gradient(90deg,#6a8dff,#7fbcff)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: '16px 36px',
+                    fontSize: 20,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px #0002',
+                    margin: '0 auto',
+                    minWidth: 200
+                  }}
+                  onClick={() => {
+                    setShowModal(true);
+                    setSchoolName('');
+                    setSaveError(null);
+                  }}
+                >
+                  Solve This Task
+                </button>
+              </div>
+              {/* Modal for entering school name */}
+              <Modal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onSubmit={handleSolveTask}
+                schoolName={schoolName}
+                setSchoolName={setSchoolName}
+              />
+              {saveError && <div style={{ color: 'red', marginTop: 8 }}>{saveError}</div>}
+              {saving && <div style={{ color: '#fff', marginTop: 8 }}>Saving...</div>}
+            </div>
+          )}
+
         </div>
       </div>
-    
+    </div>
   );
 };

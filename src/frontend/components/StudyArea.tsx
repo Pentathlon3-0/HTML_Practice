@@ -1,5 +1,39 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import Prism from 'prismjs';
+
+// Modal for entering school name (reusable)
+const SchoolNameModal = ({ isOpen, onClose, onSubmit, schoolName, setSchoolName, saving, saveError }: {
+  isOpen: boolean,
+  onClose: () => void,
+  onSubmit: () => void,
+  schoolName: string,
+  setSchoolName: (v: string) => void,
+  saving: boolean,
+  saveError: string | null
+}) => {
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#23272e', padding: 32, borderRadius: 12, minWidth: 340, boxShadow: '0 4px 24px #0008', color: '#fff', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <h2 style={{ margin: 0 }}>Enter School Name</h2>
+        <input
+          type="text"
+          value={schoolName}
+          onChange={e => setSchoolName(e.target.value)}
+          placeholder="School Name"
+          style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #444', background: '#1e1e1e', color: '#fff', fontSize: 16 }}
+        />
+        <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+          <button onClick={onSubmit} style={{ background: 'linear-gradient(90deg,#6a8dff,#7fbcff)', color: '#fff', fontWeight: 600, border: 'none', borderRadius: 6, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }} disabled={saving}>Submit</button>
+          <button onClick={onClose} style={{ background: '#444', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }} disabled={saving}>Cancel</button>
+        </div>
+        {saveError && <div style={{ color: 'red', marginTop: 8 }}>{saveError}</div>}
+        {saving && <div style={{ color: '#fff', marginTop: 8 }}>Saving...</div>}
+      </div>
+    </div>
+  );
+};
+
 import 'prismjs/components/prism-markup'; // HTML highlighting
 import 'prismjs/themes/prism-tomorrow.css'; // dark theme similar to VS Code
 
@@ -17,6 +51,12 @@ interface StudyAreaProps {
 
 export const StudyArea = ({ onBack, onSelectQuestion, onViewReferences, onViewTags }: StudyAreaProps) => {
   const { user, logout } = useAuth();
+  // State for school name modal (must be inside component)
+  const [showSchoolModal, setShowSchoolModal] = useState(false);
+  const [schoolName, setSchoolName] = useState('');
+  const [savingSchool, setSavingSchool] = useState(false);
+  const [saveSchoolError, setSaveSchoolError] = useState<string | null>(null);
+  const [pendingTaskId, setPendingTaskId] = useState<number | null>(null);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [tasksLoaded, setTasksLoaded] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -1337,16 +1377,62 @@ worker.onmessage = function(event) {
                   >
                     ← Previous Task
                   </button>
-                  <button 
+                  <button
                     className="nav-btn solve-task-btn"
                     onClick={() => {
-                      // Store that we came from task preview
-                      sessionStorage.setItem('studyAreaFromTaskPreview', 'true');
-                      onSelectQuestion(selectedTaskId);
+                      setPendingTaskId(selectedTaskId);
+                      setShowSchoolModal(true);
+                      setSchoolName('');
+                      setSaveSchoolError(null);
                     }}
                   >
-                    Solve This Task 
+                    Solve This Task
                   </button>
+                        {/* School Name Modal for Solve Task */}
+                        <SchoolNameModal
+                          isOpen={showSchoolModal}
+                          onClose={() => setShowSchoolModal(false)}
+                          onSubmit={async () => {
+                            setSavingSchool(true);
+                            setSaveSchoolError(null);
+                            if (!schoolName) {
+                              setSaveSchoolError('Please enter your school name.');
+                              setSavingSchool(false);
+                              return;
+                            }
+                            try {
+                              if (!user?.email || !pendingTaskId) {
+                                setSaveSchoolError('Missing user or task info.');
+                                setSavingSchool(false);
+                                return;
+                              }
+                              // Save to pentathlon_quiz table
+                              const { error } = await BackendAPI.supabase.from('pentathlon_quiz').insert({
+                                school_name: schoolName,
+                                user_email: user.email,
+                                score: 0,
+                                question_id: pendingTaskId
+                              });
+                              if (error) {
+                                setSaveSchoolError(error.message);
+                              } else {
+                                setShowSchoolModal(false);
+                                setSchoolName('');
+                                setPendingTaskId(null);
+                                // Store that we came from task preview
+                                sessionStorage.setItem('studyAreaFromTaskPreview', 'true');
+                                onSelectQuestion(pendingTaskId);
+                              }
+                            } catch (e: any) {
+                              setSaveSchoolError(e?.message || 'Unknown error');
+                            }
+                            setSavingSchool(false);
+                          }}
+                          schoolName={schoolName}
+                          setSchoolName={setSchoolName}
+                          saving={savingSchool}
+                          saveError={saveSchoolError}
+                        />
                   <button 
                     className="nav-btn next-btn"
                     onClick={() => {
