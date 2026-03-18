@@ -19288,9 +19288,29 @@ const BackendAPI = {
 };
 BackendAPI.supabase = supabase;
 BackendAPI.dbConfig = dbConfig;
+const Modal = ({ isOpen, onClose, onSubmit, schoolName, setSchoolName }) => {
+  if (!isOpen) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.5)", zIndex: 1e3, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "#23272e", padding: 32, borderRadius: 12, minWidth: 340, boxShadow: "0 4px 24px #0008", color: "#fff", display: "flex", flexDirection: "column", gap: 16 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0 }, children: "Enter School Name" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        type: "text",
+        value: schoolName,
+        onChange: (e) => setSchoolName(e.target.value),
+        placeholder: "School Name",
+        style: { padding: "8px 12px", borderRadius: 6, border: "1px solid #444", background: "#1e1e1e", color: "#fff", fontSize: 16 }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, marginTop: 8 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onSubmit, style: { background: "linear-gradient(90deg,#6a8dff,#7fbcff)", color: "#fff", fontWeight: 600, border: "none", borderRadius: 6, padding: "8px 20px", fontSize: 16, cursor: "pointer" }, children: "Submit" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, style: { background: "#444", color: "#fff", border: "none", borderRadius: 6, padding: "8px 20px", fontSize: 16, cursor: "pointer" }, children: "Cancel" })
+    ] })
+  ] }) });
+};
 const Quiz = ({ questionId, onBack }) => {
   const { user, logout } = useAuth();
-  const [userCode, setUserCode] = reactExports.useState("");
+  const [blankValues, setBlankValues] = reactExports.useState({});
   const [timeRemaining, setTimeRemaining] = reactExports.useState(1800);
   const [submitted, setSubmitted] = reactExports.useState(false);
   const [checked, setChecked] = reactExports.useState(true);
@@ -19300,31 +19320,79 @@ const Quiz = ({ questionId, onBack }) => {
   const [isAlreadyCompleted, setIsAlreadyCompleted] = reactExports.useState(false);
   const [fromTaskPreview] = reactExports.useState(() => sessionStorage.getItem("studyAreaFromTaskPreview") === "true");
   const [expandedExplanations, setExpandedExplanations] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [showModal, setShowModal] = reactExports.useState(false);
+  const [schoolName, setSchoolName] = reactExports.useState("");
+  const [saving, setSaving] = reactExports.useState(false);
+  const [saveError, setSaveError] = reactExports.useState(null);
+  const handleSolveTask = async () => {
+    setSaving(true);
+    setSaveError(null);
+    if (!schoolName) {
+      setSaveError("Please enter your school name.");
+      setSaving(false);
+      return;
+    }
+    try {
+      if (!user?.email || !question) {
+        setSaveError("Missing required information.");
+        setSaving(false);
+        return;
+      }
+      const { error } = await BackendAPI.supabase.from("pentathlon_quiz").insert({
+        school_name: schoolName,
+        user_email: user.email,
+        score,
+        question_id: question.id
+      });
+      if (error) {
+        setSaveError(error.message);
+      } else {
+        setShowModal(false);
+        setSchoolName("");
+        alert("Task solved and saved!");
+      }
+    } catch (e) {
+      setSaveError(e?.message || "Unknown error");
+    }
+    setSaving(false);
+  };
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
-  const handleCodeChange = (value) => {
-    setUserCode(value);
-    if (checked) {
+  const [autoCheck, setAutoCheck] = reactExports.useState(false);
+  const handleBlankChange = (blankId, value) => {
+    if (!submitted) setBlankValues((prev) => ({ ...prev, [blankId]: value }));
+    if (autoCheck) {
+      setChecked(true);
+    } else if (checked) {
       setChecked(false);
     }
   };
   const handleClear = () => {
-    setUserCode("<!DOCTYPE html>\n<html>\n</html>");
+    setBlankValues({});
     setChecked(false);
     setSubmitted(false);
     setScore(0);
+    setAutoCheck(false);
   };
   const handleCheck = () => {
     setChecked(true);
+    setAutoCheck(true);
   };
+  const [blankCorrectCount, setBlankCorrectCount] = reactExports.useState(0);
+  const [blankTotalCount, setBlankTotalCount] = reactExports.useState(0);
+  const [blankScore, setBlankScore] = reactExports.useState(0);
   const handleSubmit = async () => {
     if (!question) return;
+    let userHtml = question.htmlContent;
+    question.blanks.forEach((blank) => {
+      userHtml = userHtml.replace(new RegExp(`__${blank.id}__`, "g"), blankValues[blank.id] || "");
+    });
     const expected = generateHtmlOutput(question.htmlContent, {});
     const normalize = (str) => str.replace(/\s+/g, " ").trim();
-    const u = normalize(userCode);
+    const u = normalize(userHtml);
     const e = normalize(expected);
     let equal = 0;
     const maxLen = Math.max(u.length, e.length);
@@ -19333,8 +19401,19 @@ const Quiz = ({ questionId, onBack }) => {
     }
     const percentage = maxLen === 0 ? 100 : Math.round(equal / maxLen * 100);
     const isCorrect = percentage >= 80;
+    let correctBlanks = 0;
+    question.blanks.forEach((blank) => {
+      const userVal = (blankValues[blank.id] || "").trim();
+      const correctVal = (blank.correctAnswer || "").trim();
+      if (userVal === correctVal) correctBlanks++;
+    });
+    const totalBlanks = question.blanks.length;
+    setBlankCorrectCount(correctBlanks);
+    setBlankTotalCount(totalBlanks);
+    setBlankScore(totalBlanks > 0 ? Math.round(100 / totalBlanks * correctBlanks) : 100);
     setScore(percentage);
     setSubmitted(true);
+    setAutoCheck(false);
     if (user?.id && user?.email) {
       await BackendAPI.quiz.saveProgress(
         user.id,
@@ -19348,32 +19427,11 @@ const Quiz = ({ questionId, onBack }) => {
       BackendAPI.storage.markSolved(user.id, question.id);
     }
   };
-  const handleTryAgain = async () => {
-    if (!question || !user?.id) return;
-    setUserCode("<!DOCTYPE html>\n<html>\n</html>");
-    setSubmitted(false);
-    setChecked(false);
-    setScore(0);
-    setIsAlreadyCompleted(false);
-    setTimeRemaining(1800);
-    try {
-      const { error } = await BackendAPI.supabase.from("user_progress").update({
-        [`question_${question.id}_status`]: null
-      }).eq("user_id", user.id);
-      if (error) {
-        console.error("Error resetting progress:", error.message);
-      } else {
-        console.log(`✓ Question ${question.id} reset to fresh state`);
-      }
-    } catch (error) {
-      console.error("Error resetting progress:", error?.message);
-    }
-  };
-  const generateHtmlOutput = (htmlContent, blankValues = {}) => {
+  const generateHtmlOutput = (htmlContent, blankValues2 = {}) => {
     let output = htmlContent;
     question?.blanks.forEach((blank) => {
       const regex = new RegExp(`__${blank.id}__`, "g");
-      const value = blankValues[blank.id] !== void 0 ? blankValues[blank.id] : blank.correctAnswer;
+      const value = blankValues2[blank.id] !== void 0 ? blankValues2[blank.id] : blank.correctAnswer;
       output = output.replace(regex, value);
     });
     const style = `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>`;
@@ -19385,7 +19443,6 @@ const Quiz = ({ questionId, onBack }) => {
       const questionData = await BackendAPI.questions.getById(questionId);
       setQuestion(questionData);
       if (questionData) {
-        setUserCode("<!DOCTYPE html>\n<html>\n</html>");
         setChecked(true);
         handleCheck();
       }
@@ -19395,7 +19452,6 @@ const Quiz = ({ questionId, onBack }) => {
           const statusKey = `question_${questionId}_status`;
           const status = data[statusKey];
           if (status === "correct") {
-            setUserCode(generateHtmlOutput(questionData.htmlContent, {}));
             setIsAlreadyCompleted(true);
             setSubmitted(true);
             setScore(100);
@@ -19433,6 +19489,44 @@ const Quiz = ({ questionId, onBack }) => {
   if (!question) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#ffffff" }, children: "Question not found" });
   }
+  const renderHtmlWithInputs = () => {
+    if (!question) return null;
+    return question.htmlContent.split("\n").map((line, lineIdx) => {
+      const parts = line.split(/(__[A-Za-z0-9_]+__)/g);
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontFamily: "monospace", fontSize: 16, background: "transparent", color: "#fff", padding: 0, borderRadius: 0, lineHeight: 1.5 }, children: parts.map((part, idx) => {
+        const match = part.match(/^__([A-Za-z0-9_]+)__$/);
+        if (match) {
+          const blankId = match[1];
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: blankValues[blankId] || "",
+              onChange: (e) => handleBlankChange(blankId, e.target.value),
+              disabled: submitted,
+              style: {
+                width: 80,
+                margin: "0 4px",
+                display: "inline-block",
+                background: "#23272e",
+                color: "#d4d4d4",
+                border: "1px solid #444",
+                borderRadius: 4,
+                fontFamily: "Fira Mono, Menlo, Monaco, Consolas, monospace",
+                fontSize: 15,
+                outline: "none",
+                boxShadow: "none",
+                padding: "2px 6px"
+              },
+              placeholder: blankId.replace("BLANK_", "Blank ")
+            },
+            blankId + idx
+          );
+        }
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: part }, idx);
+      }) }, lineIdx);
+    });
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "quiz-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "header-left", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { children: [
@@ -19447,36 +19541,50 @@ const Quiz = ({ questionId, onBack }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "quiz-content", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quiz-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "html-preview", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "HTML Editor " }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "code-display", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "HTML Editor (Blanks)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
           {
-            className: "code-editor",
-            value: userCode,
-            onChange: (e) => handleCodeChange(e.target.value),
-            placeholder: "Type the complete HTML here, replacing the __BLANK_x__ placeholders with your answers",
-            disabled: submitted,
-            rows: 15
+            className: "code-display",
+            style: {
+              fontFamily: "Fira Mono, Menlo, Monaco, Consolas, monospace",
+              fontSize: 15,
+              background: "#1e1e1e",
+              color: "#d4d4d4",
+              padding: "18px 20px",
+              borderRadius: 8,
+              border: "1px solid #333",
+              boxShadow: "0 2px 8px #0002",
+              marginBottom: 12,
+              overflowX: "auto",
+              minHeight: 320,
+              maxHeight: 600,
+              lineHeight: 1.6,
+              whiteSpace: "pre"
+            },
+            children: renderHtmlWithInputs()
           }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "button-group", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "clear-btn", onClick: handleClear, children: "Clear" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "check-btn", onClick: handleCheck, disabled: checked, children: checked ? "✓ Checked" : "Check" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "submit-btn", onClick: handleSubmit, children: "Submit" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "show-answer-btn secondary", onClick: () => {
-            if (question) {
-              const expected = generateHtmlOutput(question.htmlContent, {});
-              setUserCode(expected);
-              setChecked(true);
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginTop: 12, marginBottom: 12 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "clear-btn", onClick: handleClear, style: { minWidth: 90 }, children: "Clear" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "check-btn", onClick: handleCheck, disabled: checked, style: { minWidth: 90 }, children: checked ? "✓ Checked" : "Check" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "submit-btn", onClick: handleSubmit, disabled: submitted, style: { minWidth: 90 }, children: "Submit" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1 } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "back-button",
+              style: { minWidth: 180, marginLeft: "auto", background: "linear-gradient(90deg,#6a8dff,#7fbcff)", color: "#fff", fontWeight: 600, fontSize: 16, border: "none", borderRadius: 8, padding: "10px 24px", boxShadow: "0 2px 8px #0001", cursor: "pointer" },
+              onClick: () => {
+                sessionStorage.removeItem("studyAreaFromTaskPreview");
+                onBack();
+              },
+              children: [
+                "← Back to ",
+                fromTaskPreview ? "Task Preview" : "Questions"
+              ]
             }
-          }, children: "Show Answer" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "back-button", onClick: () => {
-          sessionStorage.removeItem("studyAreaFromTaskPreview");
-          onBack();
-        }, children: [
-          "← Back to ",
-          fromTaskPreview ? "Task Preview" : "Questions"
+          )
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "blanks-section", children: checked && !submitted ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "output-comparison", children: [
@@ -19485,7 +19593,14 @@ const Quiz = ({ questionId, onBack }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             "iframe",
             {
-              srcDoc: userCode,
+              srcDoc: (() => {
+                if (!question) return "";
+                let html = question.htmlContent;
+                question.blanks.forEach((blank) => {
+                  html = html.replace(new RegExp(`__${blank.id}__`, "g"), blankValues[blank.id] || "");
+                });
+                return `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>` + html;
+              })(),
               title: "Your Output",
               style: { width: "100%", height: "250px", border: "none", borderRadius: "4px" },
               sandbox: "allow-same-origin allow-scripts"
@@ -19497,7 +19612,14 @@ const Quiz = ({ questionId, onBack }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "output-content", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             "iframe",
             {
-              srcDoc: generateHtmlOutput(question.htmlContent, {}),
+              srcDoc: (() => {
+                if (!question) return "";
+                let html = question.htmlContent;
+                question.blanks.forEach((blank) => {
+                  html = html.replace(new RegExp(`__${blank.id}__`, "g"), blank.correctAnswer);
+                });
+                return `<style>html,body, * { color: #ffffff !important; background: transparent !important; }</style>` + html;
+              })(),
               title: "Expected Output",
               style: { width: "100%", height: "250px", border: "none", borderRadius: "4px" },
               sandbox: "allow-same-origin allow-scripts"
@@ -19507,7 +19629,7 @@ const Quiz = ({ questionId, onBack }) => {
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "instructions-box", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Instructions" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-          "Please type the complete HTML code above, then click ",
+          "Fill in all blanks above, then click ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Check" }),
           " or ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Submit" }),
@@ -19536,21 +19658,61 @@ const Quiz = ({ questionId, onBack }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-header", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "📊 Quiz Results" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "score-display", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-            "Similarity to expected code: ",
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: score === 100 ? "perfect-score" : score >= 80 ? "good-score" : "needs-improvement", children: [
-              Math.round(score),
-              "%"
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-display", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+              "Correct blanks: ",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                blankCorrectCount,
+                " / ",
+                blankTotalCount
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+              "Per-blank score: ",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                blankScore,
+                "%"
+              ] })
             ] })
-          ] }) })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-actions", children: score >= 80 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "next-question-btn", onClick: onBack, children: "✓ Task Finished - View All Questions" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "try-again-btn secondary", onClick: handleTryAgain, children: "Practice Again" })
-        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "try-again-btn primary", onClick: handleTryAgain, children: "🔄 Try Again to Complete Task" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "back-to-questions-btn", onClick: onBack, children: "Back to Questions" })
-        ] }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-actions", style: { display: "flex", justifyContent: "center", marginTop: 24 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "solve-task-btn",
+            style: {
+              background: "linear-gradient(90deg,#6a8dff,#7fbcff)",
+              color: "#fff",
+              fontWeight: 600,
+              border: "none",
+              borderRadius: 12,
+              padding: "16px 36px",
+              fontSize: 20,
+              cursor: "pointer",
+              boxShadow: "0 2px 8px #0002",
+              margin: "0 auto",
+              minWidth: 200
+            },
+            onClick: () => {
+              setShowModal(true);
+              setSchoolName("");
+              setSaveError(null);
+            },
+            children: "Solve This Task"
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Modal,
+          {
+            isOpen: showModal,
+            onClose: () => setShowModal(false),
+            onSubmit: handleSolveTask,
+            schoolName,
+            setSchoolName
+          }
+        ),
+        saveError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "red", marginTop: 8 }, children: saveError }),
+        saving && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "#fff", marginTop: 8 }, children: "Saving..." })
       ] })
     ] }) })
   ] });
@@ -21186,8 +21348,35 @@ Prism.languages.xml = Prism.languages.extend("markup", {});
 Prism.languages.ssml = Prism.languages.xml;
 Prism.languages.atom = Prism.languages.xml;
 Prism.languages.rss = Prism.languages.xml;
+const SchoolNameModal = ({ isOpen, onClose, onSubmit, schoolName, setSchoolName, saving, saveError }) => {
+  if (!isOpen) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.5)", zIndex: 1e3, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "#23272e", padding: 32, borderRadius: 12, minWidth: 340, boxShadow: "0 4px 24px #0008", color: "#fff", display: "flex", flexDirection: "column", gap: 16 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0 }, children: "Enter School Name" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        type: "text",
+        value: schoolName,
+        onChange: (e) => setSchoolName(e.target.value),
+        placeholder: "School Name",
+        style: { padding: "8px 12px", borderRadius: 6, border: "1px solid #444", background: "#1e1e1e", color: "#fff", fontSize: 16 }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, marginTop: 8 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onSubmit, style: { background: "linear-gradient(90deg,#6a8dff,#7fbcff)", color: "#fff", fontWeight: 600, border: "none", borderRadius: 6, padding: "8px 20px", fontSize: 16, cursor: "pointer" }, disabled: saving, children: "Submit" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, style: { background: "#444", color: "#fff", border: "none", borderRadius: 6, padding: "8px 20px", fontSize: 16, cursor: "pointer" }, disabled: saving, children: "Cancel" })
+    ] }),
+    saveError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "red", marginTop: 8 }, children: saveError }),
+    saving && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "#fff", marginTop: 8 }, children: "Saving..." })
+  ] }) });
+};
 const StudyArea = ({ onBack, onSelectQuestion, onViewReferences, onViewTags }) => {
   const { user, logout } = useAuth();
+  const [showSchoolModal, setShowSchoolModal] = reactExports.useState(false);
+  const [schoolName, setSchoolName] = reactExports.useState("");
+  const [savingSchool, setSavingSchool] = reactExports.useState(false);
+  const [saveSchoolError, setSaveSchoolError] = reactExports.useState(null);
+  const [pendingTaskId, setPendingTaskId] = reactExports.useState(null);
   const [questions, setQuestions] = reactExports.useState([]);
   const [tasksLoaded, setTasksLoaded] = reactExports.useState(false);
   const [copiedCode, setCopiedCode] = reactExports.useState(null);
@@ -22464,10 +22653,57 @@ worker.onmessage = function(event) {
             {
               className: "nav-btn solve-task-btn",
               onClick: () => {
-                sessionStorage.setItem("studyAreaFromTaskPreview", "true");
-                onSelectQuestion(selectedTaskId);
+                setPendingTaskId(selectedTaskId);
+                setShowSchoolModal(true);
+                setSchoolName("");
+                setSaveSchoolError(null);
               },
               children: "Solve This Task"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SchoolNameModal,
+            {
+              isOpen: showSchoolModal,
+              onClose: () => setShowSchoolModal(false),
+              onSubmit: async () => {
+                setSavingSchool(true);
+                setSaveSchoolError(null);
+                if (!schoolName) {
+                  setSaveSchoolError("Please enter your school name.");
+                  setSavingSchool(false);
+                  return;
+                }
+                try {
+                  if (!user?.email || !pendingTaskId) {
+                    setSaveSchoolError("Missing user or task info.");
+                    setSavingSchool(false);
+                    return;
+                  }
+                  const { error } = await BackendAPI.supabase.from("pentathlon_quiz").insert({
+                    school_name: schoolName,
+                    user_email: user.email,
+                    score: 0,
+                    question_id: pendingTaskId
+                  });
+                  if (error) {
+                    setSaveSchoolError(error.message);
+                  } else {
+                    setShowSchoolModal(false);
+                    setSchoolName("");
+                    setPendingTaskId(null);
+                    sessionStorage.setItem("studyAreaFromTaskPreview", "true");
+                    onSelectQuestion(pendingTaskId);
+                  }
+                } catch (e) {
+                  setSaveSchoolError(e?.message || "Unknown error");
+                }
+                setSavingSchool(false);
+              },
+              schoolName,
+              setSchoolName,
+              saving: savingSchool,
+              saveError: saveSchoolError
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
