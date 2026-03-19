@@ -148,7 +148,7 @@ const getLearnignTip = (blankId: string, answer: string): string => {
 export const Quiz = ({ questionId, onBack }: QuizProps) => {
   const { user, logout } = useAuth();
   const [blankValues, setBlankValues] = useState<{ [key: string]: string }>({});
-  const [timeRemaining, setTimeRemaining] = useState(1800);
+  const [timeRemaining, setTimeRemaining] = useState(900);
   const [submitted, setSubmitted] = useState(false);
   const [checked, setChecked] = useState(true); // show comparison immediately on load
   const [score, setScore] = useState(0);

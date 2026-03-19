@@ -19311,7 +19311,7 @@ const Modal = ({ isOpen, onClose, onSubmit, schoolName, setSchoolName }) => {
 const Quiz = ({ questionId, onBack }) => {
   const { user, logout } = useAuth();
   const [blankValues, setBlankValues] = reactExports.useState({});
-  const [timeRemaining, setTimeRemaining] = reactExports.useState(1800);
+  const [timeRemaining, setTimeRemaining] = reactExports.useState(900);
   const [submitted, setSubmitted] = reactExports.useState(false);
   const [checked, setChecked] = reactExports.useState(true);
   const [score, setScore] = reactExports.useState(0);
